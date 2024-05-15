@@ -1,4 +1,4 @@
-import { extractRuleSet } from "../Wfc.ts";
+import { extractRuleSet } from "../RuleExtractor.ts";
 
 describe("Wcf", () => {
   describe("extractRuleSet", () => {
