@@ -8,9 +8,9 @@ import {
 import { setTile } from "./WcfTilePlacer.ts";
 
 export const process = (wcfData: WcfData, ruleSet: RuleSet): WcfData => {
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 100; i++) {
     let workDoneInPass = false;
-    for (let j = 0; j < 5; j++) {
+    for (let j = 0; j < 100; j++) {
       const workDone = replaceSingleAllowedWithSelected(wcfData, ruleSet);
       if (workDone) {
         workDoneInPass = true;
