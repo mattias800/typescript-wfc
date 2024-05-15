@@ -7,11 +7,23 @@ export const setTile = (
   wcfData: WcfData,
   ruleSet: RuleSet,
 ): WcfData => {
+  const rows = wcfData.length;
+  const cols = wcfData[0].length;
+
   wcfData[row][col].selectedTile = tile;
-  updateAllowedTiles(col, row - 1, wcfData, ruleSet);
-  updateAllowedTiles(col, row + 1, wcfData, ruleSet);
-  updateAllowedTiles(col - 1, row, wcfData, ruleSet);
-  updateAllowedTiles(col + 1, row, wcfData, ruleSet);
+
+  if (row > 0) {
+    updateAllowedTiles(col, row - 1, wcfData, ruleSet);
+  }
+  if (row < rows - 1) {
+    updateAllowedTiles(col, row + 1, wcfData, ruleSet);
+  }
+  if (col > 0) {
+    updateAllowedTiles(col - 1, row, wcfData, ruleSet);
+  }
+  if (col < cols - 1) {
+    updateAllowedTiles(col + 1, row, wcfData, ruleSet);
+  }
   return wcfData;
 };
 

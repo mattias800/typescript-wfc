@@ -1,6 +1,11 @@
 export type TileId = string;
 export type SourceMap = Array<Array<TileId>>;
 
+export interface Coordinate {
+  col: number;
+  row: number;
+}
+
 export interface RuleSet {
   [key: TileId]: AllowedNeighbours;
 }
