@@ -11,10 +11,10 @@ export interface RuleSet {
 }
 
 export interface AllowedNeighbours {
-  right: Array<string>;
-  left: Array<string>;
-  up: Array<string>;
-  down: Array<string>;
+  right: Array<TileId>;
+  left: Array<TileId>;
+  up: Array<TileId>;
+  down: Array<TileId>;
 }
 
 export type WcfAllowedTileList = Array<TileId>;
