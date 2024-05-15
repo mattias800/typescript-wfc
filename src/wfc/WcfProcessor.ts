@@ -75,6 +75,9 @@ export const findRandomTileWithAllowed = (
       if (tile.selectedTile) {
         continue;
       }
+      if (!tile.selectedTile && tile.allowedTiles.length === 0) {
+        console.log("Warning, tile cannot be resolved.");
+      }
       if (
         currentTile == null ||
         (tile.allowedTiles.length > 0 &&
