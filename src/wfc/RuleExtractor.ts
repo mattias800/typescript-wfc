@@ -1,16 +1,4 @@
-export type TileId = string;
-export type SourceMap = Array<Array<TileId>>;
-
-export interface RuleSet {
-  [key: string]: AllowedNeighbours;
-}
-
-export interface AllowedNeighbours {
-  right: Array<string>;
-  left: Array<string>;
-  up: Array<string>;
-  down: Array<string>;
-}
+import { RuleSet, SourceMap } from "./CommonTypes.ts";
 
 export const extractRuleSet = (source: SourceMap): RuleSet => {
   const rows = source.length;
@@ -33,7 +21,7 @@ export const extractRuleSet = (source: SourceMap): RuleSet => {
         let t = source[row][col - 1];
         if (!ruleSet[tile].left.includes(t)) {
           ruleSet[tile].left.push(t);
-          ruleSet[tile].left.sort()
+          ruleSet[tile].left.sort();
         }
       }
       if (col < cols - 1) {

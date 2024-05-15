@@ -19,12 +19,12 @@ describe("WcfTileFactory", () => {
       });
 
       it("includes all possibilities", () => {
-        expect(t[0][0]).toEqual(["1", "2", "3", "4"]);
-        expect(t[0][1]).toEqual(["1", "2", "3", "4"]);
-        expect(t[1][0]).toEqual(["1", "2", "3", "4"]);
-        expect(t[1][1]).toEqual(["1", "2", "3", "4"]);
-        expect(t[2][0]).toEqual(["1", "2", "3", "4"]);
-        expect(t[2][1]).toEqual(["1", "2", "3", "4"]);
+        expect(t[0][0].allowedTiles).toEqual(["1", "2", "3", "4"]);
+        expect(t[0][1].allowedTiles).toEqual(["1", "2", "3", "4"]);
+        expect(t[1][0].allowedTiles).toEqual(["1", "2", "3", "4"]);
+        expect(t[1][1].allowedTiles).toEqual(["1", "2", "3", "4"]);
+        expect(t[2][0].allowedTiles).toEqual(["1", "2", "3", "4"]);
+        expect(t[2][1].allowedTiles).toEqual(["1", "2", "3", "4"]);
       });
     });
   });
