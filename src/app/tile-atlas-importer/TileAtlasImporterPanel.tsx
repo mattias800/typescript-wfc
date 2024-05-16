@@ -10,10 +10,13 @@ import {
   SecondaryButton,
 } from "@stenajs-webui/elements";
 import { TileAtlasImporterSettingsForm } from "./TileAtlasImporterSettingsForm.tsx";
-import { useAppSelector } from "../../Store.ts";
+import { useAppDispatch, useAppSelector } from "../../Store.ts";
 import { Row } from "@stenajs-webui/core";
 import { extractUniqueTiles } from "../util/TileImporter.ts";
 import { getImageDataFromImage } from "../util/ImageDataUtil.ts";
+import { extractRuleSet } from "../../wfc/RuleExtractor.ts";
+import { mapNumberMapToSourceMap } from "../../wfc/SourceMapMapper.ts";
+import { wcfSlice } from "../wcf/WcfSlice.ts";
 
 export interface TileAtlasImporterPanelProps {}
 
@@ -21,6 +24,7 @@ export const TileAtlasImporterPanel: React.FC<
   TileAtlasImporterPanelProps
 > = () => {
   const id = useId();
+  const dispatch = useAppDispatch();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
 
@@ -62,8 +66,11 @@ export const TileAtlasImporterPanel: React.FC<
       const imageData = getImageDataFromImage(image);
       const r = extractUniqueTiles(settingsX, settingsY, imageData);
       console.log(r);
+      const ruleSet = extractRuleSet(mapNumberMapToSourceMap(r.tileMap));
+      dispatch(wcfSlice.actions.setRuleSet({ ruleSet }));
+      console.log(r);
     }
-  }, []);
+  }, [settingsX, settingsY]);
 
   return (
     <Card>
