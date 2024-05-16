@@ -1,11 +1,9 @@
+import { TileAtlasDimensionSettings } from "../app/tile-atlas-importer/TileAtlasImporterSlice.ts";
+
 export const drawChessBoard = (
   ctx: CanvasRenderingContext2D,
-  tileSizeX: number,
-  tileSizeY: number,
-  offsetX: number = 0,
-  offsetY: number = 0,
-  separationX: number = 0,
-  separationY: number = 0,
+  settingsX: TileAtlasDimensionSettings,
+  settingsY: TileAtlasDimensionSettings,
 ) => {
   let lightCellColor = "#ddb18060";
   let darkCellColor = "#7c330c60";
@@ -16,10 +14,10 @@ export const drawChessBoard = (
       const color = (x + offset) % 2 === 0 ? lightCellColor : darkCellColor;
       ctx.fillStyle = color;
       ctx.fillRect(
-        offsetX + x * tileSizeX + x * separationX,
-        offsetY + y * tileSizeY + y * separationY,
-        tileSizeX,
-        tileSizeY,
+        settingsX.offset + x * settingsX.tileSize + x * settingsX.separation,
+        settingsY.offset + y * settingsY.tileSize + y * settingsY.separation,
+        settingsX.tileSize,
+        settingsY.tileSize,
       );
     }
   }

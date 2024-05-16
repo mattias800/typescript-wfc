@@ -1,17 +1,28 @@
 import * as React from "react";
-import { useEffect, useId, useRef } from "react";
+import { useCallback, useEffect, useId, useRef } from "react";
 import sourceImage from "../../assets/smb3map.png";
 import { Canvas } from "../../canvas/Canvas.tsx";
 import { drawChessBoard } from "../../canvas/CanvasUtils.ts";
-import { Card, CardBody, CardHeader } from "@stenajs-webui/elements";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  SecondaryButton,
+} from "@stenajs-webui/elements";
 import { TileAtlasImporterSettingsForm } from "./TileAtlasImporterSettingsForm.tsx";
 import { useAppSelector } from "../../Store.ts";
+import { Row } from "@stenajs-webui/core";
+import { extractUniqueTiles } from "../util/TileImporter.ts";
+import { getImageDataFromImage } from "../util/ImageDataUtil.ts";
 
-export interface TileAtlasImporterProps {}
+export interface TileAtlasImporterPanelProps {}
 
-export const TileAtlasImporter: React.FC<TileAtlasImporterProps> = () => {
+export const TileAtlasImporterPanel: React.FC<
+  TileAtlasImporterPanelProps
+> = () => {
   const id = useId();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imageRef = useRef<HTMLImageElement | null>(null);
 
   const { settingsX, settingsY } = useAppSelector(
     (state) => state.tileAtlasImporter,
@@ -40,23 +51,29 @@ export const TileAtlasImporter: React.FC<TileAtlasImporterProps> = () => {
         image.width * scale,
         image.height * scale,
       );
-      drawChessBoard(
-        ctx,
-        settingsX.tileSize,
-        settingsY.tileSize,
-        settingsX.offset,
-        settingsY.offset,
-        settingsX.separation,
-        settingsY.separation,
-      );
+      drawChessBoard(ctx, settingsX, settingsY);
+      imageRef.current = image;
     };
   }, [settingsX, settingsY]);
+
+  const onClickImport = useCallback(() => {
+    const image = imageRef.current;
+    if (image) {
+      const imageData = getImageDataFromImage(image);
+      const r = extractUniqueTiles(settingsX, settingsY, imageData);
+      console.log(r);
+    }
+  }, []);
 
   return (
     <Card>
       <CardHeader text={"Tile atlas importer"} />
-      <CardBody>
-        <TileAtlasImporterSettingsForm />
+      <CardBody gap={2}>
+        <Row alignItems={"flex-end"} gap={2}>
+          <TileAtlasImporterSettingsForm />
+          <SecondaryButton label={"Import"} onClick={onClickImport} />
+        </Row>
+
         <Canvas
           id={id}
           width={"320px"}
