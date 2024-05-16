@@ -20,7 +20,7 @@ export const process = (wcfData: WcfData, ruleSet: RuleSet): WcfData => {
       }
     }
 
-    const c = findRandomTileWithAllowed(wcfData);
+    const c = getRandomCoordinateWithLowestEntropy(wcfData);
 
     if (c) {
       let tile = wcfData[c.row][c.col];
@@ -60,14 +60,25 @@ export const replaceSingleAllowedWithSelected = (
   return anyTilesUpdated;
 };
 
-export const findRandomTileWithAllowed = (
+export const getRandomCoordinateWithLowestEntropy = (
   wcfData: WcfData,
 ): Coordinate | undefined => {
+  const possibleCoordinates = findTilesWithLowestEntropy(wcfData);
+  if (possibleCoordinates.length === 0) {
+    return undefined;
+  }
+  const randomIndex = Math.floor(Math.random() * possibleCoordinates.length);
+  return possibleCoordinates[randomIndex];
+};
+
+export const findTilesWithLowestEntropy = (
+  wcfData: WcfData,
+): Array<Coordinate> => {
   const rows = wcfData.length;
   const cols = wcfData[0].length;
 
-  let currentTile: WcfTile | undefined = undefined;
-  let currentCoordinate: Coordinate | undefined = undefined;
+  let currentLowestEntropy = Infinity;
+  let coordinatesWithLowestEntropy: Array<Coordinate> = [];
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
@@ -78,18 +89,22 @@ export const findRandomTileWithAllowed = (
       if (!tile.selectedTile && tile.allowedTiles.length === 0) {
         console.log("Warning, tile cannot be resolved.");
       }
+
+      if (tile.allowedTiles.length === currentLowestEntropy) {
+        coordinatesWithLowestEntropy.push({ row, col });
+      }
+
       if (
-        currentTile == null ||
-        (tile.allowedTiles.length > 0 &&
-          tile.allowedTiles.length < currentTile.allowedTiles.length)
+        tile.allowedTiles.length > 0 &&
+        tile.allowedTiles.length < currentLowestEntropy
       ) {
-        currentTile = tile;
-        currentCoordinate = { row, col };
+        currentLowestEntropy = tile.allowedTiles.length;
+        coordinatesWithLowestEntropy = [{ row, col }];
       }
     }
   }
 
-  return currentCoordinate;
+  return coordinatesWithLowestEntropy;
 };
 
 export const getRandomAllowedTile = (tile: WcfTile): TileId => {
