@@ -6,25 +6,44 @@ export const setTile = (
   tile: TileId,
   wcfData: WcfData,
   ruleSet: RuleSet,
-): WcfData => {
+) => {
+  wcfData[row][col].selectedTile = tile;
+  updateNeighboursAllowedTiles(col, row, wcfData, ruleSet);
+};
+
+export const updateNeighboursAllowedTiles = (
+  col: number,
+  row: number,
+  wcfData: WcfData,
+  ruleSet: RuleSet,
+): void => {
   const rows = wcfData.length;
   const cols = wcfData[0].length;
 
-  wcfData[row][col].selectedTile = tile;
-
   if (row > 0) {
-    updateAllowedTiles(col, row - 1, wcfData, ruleSet);
+    const hasChanges = updateAllowedTiles(col, row - 1, wcfData, ruleSet);
+    if (hasChanges) {
+      updateNeighboursAllowedTiles(col, row - 1, wcfData, ruleSet);
+    }
   }
   if (row < rows - 1) {
-    updateAllowedTiles(col, row + 1, wcfData, ruleSet);
+    const hasChanges = updateAllowedTiles(col, row + 1, wcfData, ruleSet);
+    if (hasChanges) {
+      updateNeighboursAllowedTiles(col, row + 1, wcfData, ruleSet);
+    }
   }
   if (col > 0) {
-    updateAllowedTiles(col - 1, row, wcfData, ruleSet);
+    const hasChanges = updateAllowedTiles(col - 1, row, wcfData, ruleSet);
+    if (hasChanges) {
+      updateNeighboursAllowedTiles(col - 1, row, wcfData, ruleSet);
+    }
   }
   if (col < cols - 1) {
-    updateAllowedTiles(col + 1, row, wcfData, ruleSet);
+    const hasChanges = updateAllowedTiles(col + 1, row, wcfData, ruleSet);
+    if (hasChanges) {
+      updateNeighboursAllowedTiles(col + 1, row, wcfData, ruleSet);
+    }
   }
-  return wcfData;
 };
 
 export const updateAllowedTiles = (
@@ -32,14 +51,11 @@ export const updateAllowedTiles = (
   row: number,
   wcfData: WcfData,
   ruleSet: RuleSet,
-): WcfData => {
-  wcfData[row][col].allowedTiles = calculateAllowedTiles(
-    col,
-    row,
-    wcfData,
-    ruleSet,
-  );
-  return wcfData;
+): boolean => {
+  const prevAllowedTiles = wcfData[row][col].allowedTiles;
+  const nextAllowedTiles = calculateAllowedTiles(col, row, wcfData, ruleSet);
+  wcfData[row][col].allowedTiles = nextAllowedTiles;
+  return prevAllowedTiles.length !== nextAllowedTiles.length;
 };
 
 export const calculateAllowedTiles = (
