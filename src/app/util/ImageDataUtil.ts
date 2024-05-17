@@ -1,3 +1,5 @@
+import { TileId } from "../../wfc/CommonTypes.ts";
+
 export const createSubImageData = (
   imageData: ImageData,
   startX: number,
@@ -69,4 +71,51 @@ export const imageDataToBase64 = (imageData: ImageData): string => {
   canvas.height = imageData.height;
   ctx.putImageData(imageData, 0, 0);
   return canvas.toDataURL(); // default format is 'image/png'
+};
+
+export const base64ToImageData = (base64String: string): Promise<ImageData> =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = function () {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (ctx == null) {
+        reject();
+        return;
+      }
+      canvas.width = image.width;
+      canvas.height = image.height;
+      ctx.drawImage(image, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      resolve(imageData);
+    };
+    image.onerror = function (error) {
+      reject(error);
+    };
+    image.src = base64String;
+  });
+
+const base64ToImageAsync = (
+  base64String: string,
+): Promise<HTMLImageElement> => {
+  const image = new Image();
+  return new Promise((resolve, reject) => {
+    image.onload = () => resolve(image);
+    image.onerror = () => reject();
+    image.src = base64String;
+  });
+};
+
+export const tileAtlasStateToImageElements = async (
+  atlas: Record<TileId, string>,
+): Promise<Record<TileId, HTMLImageElement>> => {
+  const r: Record<TileId, HTMLImageElement> = {};
+  const tileIds = Object.keys(atlas);
+
+  for (let tileId of tileIds) {
+    const image = await base64ToImageAsync(atlas[tileId]);
+    r[tileId] = image;
+  }
+
+  return r;
 };
