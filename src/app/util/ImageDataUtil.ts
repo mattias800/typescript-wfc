@@ -58,3 +58,15 @@ export const getImageDataFromImage = (image: HTMLImageElement) => {
   ctx.drawImage(image, 0, 0);
   return ctx.getImageData(0, 0, image.width, image.height);
 };
+
+export const imageDataToBase64 = (imageData: ImageData): string => {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (ctx == null) {
+    throw new Error("No context found.");
+  }
+  canvas.width = imageData.width;
+  canvas.height = imageData.height;
+  ctx.putImageData(imageData, 0, 0);
+  return canvas.toDataURL(); // default format is 'image/png'
+};

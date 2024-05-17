@@ -1,8 +1,14 @@
 import { TileAtlasDimensionSettings } from "../tile-atlas-importer/TileAtlasImporterSlice.ts";
-import { createSubImageData, imageDataEquals } from "./ImageDataUtil.ts";
+import {
+  createSubImageData,
+  imageDataEquals,
+  imageDataToBase64,
+} from "./ImageDataUtil.ts";
+import { TileId } from "../../wfc/CommonTypes.ts";
 
 export interface ExtractTilesResult {
   tiles: Array<ImageData>;
+  tilesRecord: Record<TileId, string>;
   tileMap: Array<Array<number>>;
 }
 
@@ -13,6 +19,7 @@ export const extractUniqueTiles = (
 ): ExtractTilesResult => {
   const tiles: Array<ImageData> = [];
   const tileMap: Array<Array<number>> = [];
+  const tilesRecord: Record<TileId, string> = {};
 
   for (let y = 0; y < imageData.height / settingsY.tileSize; y++) {
     tileMap.push([]);
@@ -28,13 +35,17 @@ export const extractUniqueTiles = (
       if (i < 0) {
         tiles.push(chunk);
         tileMap[tileMap.length - 1].push(tiles.length - 1);
+        tilesRecord[String(tiles.length - 1)] = imageDataToBase64(chunk);
+        console.log("Found unique tile no " + tileMap.length);
       } else {
         tileMap[tileMap.length - 1].push(i);
       }
     }
   }
+
   return {
     tiles,
     tileMap,
+    tilesRecord,
   };
 };

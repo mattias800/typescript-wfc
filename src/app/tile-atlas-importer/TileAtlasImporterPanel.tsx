@@ -17,6 +17,7 @@ import { getImageDataFromImage } from "../util/ImageDataUtil.ts";
 import { extractRuleSet } from "../../wfc/RuleExtractor.ts";
 import { mapNumberMapToSourceMap } from "../../wfc/SourceMapMapper.ts";
 import { wcfSlice } from "../wcf/WcfSlice.ts";
+import { tileAtlasSlice } from "../tile-atlas/TileAtlasSlice.ts";
 
 export interface TileAtlasImporterPanelProps {}
 
@@ -68,9 +69,20 @@ export const TileAtlasImporterPanel: React.FC<
       console.log(r);
       const ruleSet = extractRuleSet(mapNumberMapToSourceMap(r.tileMap));
       dispatch(wcfSlice.actions.setRuleSet({ ruleSet }));
-      console.log(r);
+      dispatch(tileAtlasSlice.actions.reset());
+      dispatch(
+        tileAtlasSlice.actions.setTiles({
+          tiles: r.tilesRecord,
+        }),
+      );
+      dispatch(
+        tileAtlasSlice.actions.setTileSize({
+          tileWidth: settingsX.tileSize,
+          tileHeight: settingsY.tileSize,
+        }),
+      );
     }
-  }, [settingsX, settingsY]);
+  }, [dispatch, settingsX, settingsY]);
 
   return (
     <Card>

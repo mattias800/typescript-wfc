@@ -32,6 +32,12 @@ export const tileAtlasSlice = createSlice({
       state.tileWidth = action.payload.tileWidth;
       state.tileHeight = action.payload.tileHeight;
     },
+    setTiles: (
+      state,
+      action: PayloadAction<{ tiles: Record<TileId, string> }>,
+    ) => {
+      state.tiles = action.payload.tiles;
+    },
     addTile: (
       state,
       action: PayloadAction<{ tileId: TileId; base64data: string }>,
