@@ -8,7 +8,7 @@ import {
 import { setTile } from "./WcfTilePlacer.ts";
 
 export const process = (wcfData: WcfData, ruleSet: RuleSet): WcfData => {
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 10000; i++) {
     let workDoneInPass = false;
     for (let j = 0; j < 100; j++) {
       const workDone = replaceSingleAllowedWithSelected(wcfData, ruleSet);
@@ -87,7 +87,8 @@ export const findTilesWithLowestEntropy = (
         continue;
       }
       if (!tile.selectedTile && tile.allowedTiles.length === 0) {
-        console.log("Warning, tile cannot be resolved.");
+        // Warning, tile cannot be resolved.
+        continue;
       }
 
       if (tile.allowedTiles.length === currentLowestEntropy) {
