@@ -10,7 +10,7 @@ export const TilePanel: React.FC<TilePanelProps> = ({ tileId }) => {
   const tiles = useAppSelector((state) => state.tileAtlas.tiles);
 
   return (
-    <Column>
+    <Column width={"45px"}>
       <Text>ID: {tileId}</Text>
       <img
         src={tiles[tileId]}
