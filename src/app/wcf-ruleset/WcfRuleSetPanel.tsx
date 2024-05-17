@@ -4,9 +4,9 @@ import { Card, CardBody, CardHeader } from "@stenajs-webui/elements";
 import { RuleSetPanel } from "./RuleSetPanel.tsx";
 import { useAppSelector } from "../../Store.ts";
 
-export interface WcfPanelProps {}
+export interface WcfRuleSetPanelProps {}
 
-export const WcfPanel: React.FC<WcfPanelProps> = () => {
+export const WcfRuleSetPanel: React.FC<WcfRuleSetPanelProps> = () => {
   const { ruleSet } = useAppSelector((state) => state.wcf);
   return (
     <Card width={"350px"}>

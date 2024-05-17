@@ -3,21 +3,17 @@ import { useCallback, useEffect, useId, useRef } from "react";
 import sourceImage from "../../assets/smb3map.png";
 import { Canvas } from "../../canvas/Canvas.tsx";
 import { drawChessBoard } from "../../canvas/CanvasUtils.ts";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  SecondaryButton,
-} from "@stenajs-webui/elements";
+import { PrimaryButton, SecondaryButton } from "@stenajs-webui/elements";
 import { TileAtlasImporterSettingsForm } from "./TileAtlasImporterSettingsForm.tsx";
 import { useAppDispatch, useAppSelector } from "../../Store.ts";
-import { Row } from "@stenajs-webui/core";
+import { Column, Row } from "@stenajs-webui/core";
 import { extractUniqueTiles } from "../util/TileImporter.ts";
 import { getImageDataFromImage } from "../util/ImageDataUtil.ts";
 import { extractRuleSet } from "../../wfc/RuleExtractor.ts";
 import { mapNumberMapToSourceMap } from "../../wfc/SourceMapMapper.ts";
-import { wcfSlice } from "../wcf/WcfSlice.ts";
+import { wcfSlice } from "../wcf-ruleset/WcfSlice.ts";
 import { tileAtlasSlice } from "../tile-atlas/TileAtlasSlice.ts";
+import { useDialogPromise } from "@stenajs-webui/modal";
 
 export interface TileAtlasImporterPanelProps {}
 
@@ -26,6 +22,7 @@ export const TileAtlasImporterPanel: React.FC<
 > = () => {
   const id = useId();
   const dispatch = useAppDispatch();
+  const { resolve, reject } = useDialogPromise();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
 
@@ -68,6 +65,7 @@ export const TileAtlasImporterPanel: React.FC<
       const r = extractUniqueTiles(settingsX, settingsY, imageData);
       console.log(r);
       const ruleSet = extractRuleSet(mapNumberMapToSourceMap(r.tileMap));
+
       dispatch(wcfSlice.actions.setRuleSet({ ruleSet }));
       dispatch(tileAtlasSlice.actions.reset());
       dispatch(
@@ -81,30 +79,29 @@ export const TileAtlasImporterPanel: React.FC<
           tileHeight: settingsY.tileSize,
         }),
       );
+      resolve();
     }
-  }, [dispatch, settingsX, settingsY]);
+  }, [dispatch, resolve, settingsX, settingsY]);
 
   return (
-    <Card>
-      <CardHeader text={"Tile atlas importer"} />
-      <CardBody gap={2}>
-        <Row alignItems={"flex-end"} gap={2}>
-          <TileAtlasImporterSettingsForm />
-          <SecondaryButton label={"Import"} onClick={onClickImport} />
-        </Row>
+    <Column gap={2}>
+      <Row alignItems={"flex-end"} gap={6}>
+        <TileAtlasImporterSettingsForm />
+        <PrimaryButton label={"Import"} onClick={onClickImport} />
+        <SecondaryButton label={"Cancel"} onClick={() => reject()} />
+      </Row>
 
-        <Canvas
-          id={id}
-          width={"320px"}
-          height={"180px"}
-          style={{
-            width: "1280px",
-            height: "720px",
-            imageRendering: "pixelated",
-          }}
-          ref={canvasRef}
-        />
-      </CardBody>
-    </Card>
+      <Canvas
+        id={id}
+        width={"320px"}
+        height={"180px"}
+        style={{
+          width: "1280px",
+          height: "720px",
+          imageRendering: "pixelated",
+        }}
+        ref={canvasRef}
+      />
+    </Column>
   );
 };
