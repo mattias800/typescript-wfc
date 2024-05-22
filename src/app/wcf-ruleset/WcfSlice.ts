@@ -46,5 +46,39 @@ export const wcfSlice = createSlice({
         n.right = n.right.filter((m) => m !== tileId);
       }
     },
+    replaceTileWithOtherTile: (
+      state,
+      {
+        payload: { tileIdToDelete, tileIdToReplaceIt },
+      }: PayloadAction<{ tileIdToDelete: TileId; tileIdToReplaceIt: TileId }>,
+    ) => {
+      if (state.ruleSet == null) {
+        return state;
+      }
+
+      delete state.ruleSet[tileIdToDelete];
+
+      const tileIds = Object.keys(state.ruleSet) as Array<TileId>;
+
+      for (const neighbourId of tileIds) {
+        let n = state.ruleSet[neighbourId];
+        if (n == null) {
+          console.log(
+            "Could not find tile while replacing a tile from rule set.",
+          );
+          continue;
+        }
+        n.up = n.up.map((m) => (m !== tileIdToDelete ? m : tileIdToReplaceIt));
+        n.down = n.down.map((m) =>
+          m !== tileIdToDelete ? m : tileIdToReplaceIt,
+        );
+        n.left = n.left.map((m) =>
+          m !== tileIdToDelete ? m : tileIdToReplaceIt,
+        );
+        n.right = n.right.map((m) =>
+          m !== tileIdToDelete ? m : tileIdToReplaceIt,
+        );
+      }
+    },
   },
 });

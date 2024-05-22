@@ -7,7 +7,6 @@ import { useAppSelector } from "../../Store.ts";
 export interface WcfRuleSetPanelProps {}
 
 export const WcfRuleSetPanel: React.FC<WcfRuleSetPanelProps> = () => {
-  console.log("render WcfRuleSetPanel");
   const { ruleSet } = useAppSelector((state) => state.wcf);
   return (
     <Card width={"350px"}>
