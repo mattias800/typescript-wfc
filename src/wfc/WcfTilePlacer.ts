@@ -74,25 +74,25 @@ export const calculateAllowedTiles = (
   if (col > 0) {
     const tileId = wcfData[row][col - 1].selectedTile;
     if (tileId) {
-      concatUnique(notAllowed, getNotAllowed(allTiles, ruleSet[tileId].right));
+      concatUnique(notAllowed, getNotAllowed(allTiles, ruleSet[tileId]?.right));
     }
   }
   if (col < cols - 1) {
     const tileId = wcfData[row][col + 1].selectedTile;
     if (tileId) {
-      concatUnique(notAllowed, getNotAllowed(allTiles, ruleSet[tileId].left));
+      concatUnique(notAllowed, getNotAllowed(allTiles, ruleSet[tileId]?.left));
     }
   }
   if (row > 0) {
     const tileId = wcfData[row - 1][col].selectedTile;
     if (tileId) {
-      concatUnique(notAllowed, getNotAllowed(allTiles, ruleSet[tileId].down));
+      concatUnique(notAllowed, getNotAllowed(allTiles, ruleSet[tileId]?.down));
     }
   }
   if (row < rows - 1) {
     const tileId = wcfData[row + 1][col].selectedTile;
     if (tileId) {
-      concatUnique(notAllowed, getNotAllowed(allTiles, ruleSet[tileId].up));
+      concatUnique(notAllowed, getNotAllowed(allTiles, ruleSet[tileId]?.up));
     }
   }
 

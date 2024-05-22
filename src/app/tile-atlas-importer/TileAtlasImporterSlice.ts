@@ -13,13 +13,13 @@ export interface TileAtlasImporterState {
 
 const initialState: TileAtlasImporterState = {
   settingsX: {
-    tileSize: 8,
-    offset: 0,
+    tileSize: 16,
+    offset: 8,
     separation: 0,
   },
   settingsY: {
-    tileSize: 8,
-    offset: 0,
+    tileSize: 16,
+    offset: 9,
     separation: 0,
   },
 };

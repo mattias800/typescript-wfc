@@ -1,8 +1,10 @@
 import * as React from "react";
 import { RuleSet, TileId } from "../../wfc/CommonTypes.ts";
-import { Box, Column, Text } from "@stenajs-webui/core";
-import { AllowedNeighboursPanel } from "./AllowedNeighboursPanel.tsx";
+import { Box, Row } from "@stenajs-webui/core";
 import { cssColor } from "@stenajs-webui/theme";
+import { TilePanel } from "../tile-atlas/TilePanel.tsx";
+import { useModalDialog } from "@stenajs-webui/modal";
+import { RuleDetailsModal } from "../wfc-rule-details/RuleDetailsModal.tsx";
 
 export interface RuleSetPanelProps {
   ruleSet: RuleSet;
@@ -10,22 +12,26 @@ export interface RuleSetPanelProps {
 
 export const RuleSetPanel: React.FC<RuleSetPanelProps> = ({ ruleSet }) => {
   const tileIds = Object.keys(ruleSet) as Array<TileId>;
+  const [dialog, { show }] = useModalDialog(RuleDetailsModal);
   return (
-    <Column gap={2}>
+    <Row gap={2} flexWrap={"wrap"}>
+      {dialog}
       {tileIds.map((tileId) => (
-        <Box
-          background={cssColor("--silver-lighter")}
-          spacing={1}
-          indent={1}
+        <button
           key={tileId}
+          onClick={() => show({ tileId })}
+          style={{ margin: 0 }}
         >
-          <Text>Tile id: {tileId}</Text>
-          <AllowedNeighboursPanel
-            allowedNeighbours={ruleSet[tileId]}
+          <Box
+            background={cssColor("--silver-lighter")}
+            spacing={1}
+            indent={1}
             key={tileId}
-          />
-        </Box>
+          >
+            <TilePanel tileId={tileId} />
+          </Box>
+        </button>
       ))}
-    </Column>
+    </Row>
   );
 };

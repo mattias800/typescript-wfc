@@ -1,6 +1,6 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
-import { RuleSet } from "../../wfc/CommonTypes.ts"; // Define a type for the slice state
+import { RuleSet, TileId } from "../../wfc/CommonTypes.ts"; // Define a type for the slice state
 
 interface WcfState {
   ruleSet: RuleSet | undefined;
@@ -19,6 +19,32 @@ export const wcfSlice = createSlice({
     },
     setRuleSet: (state, action: PayloadAction<{ ruleSet: RuleSet }>) => {
       state.ruleSet = action.payload.ruleSet;
+    },
+    deleteTileFromRules: (
+      state,
+      { payload: { tileId } }: PayloadAction<{ tileId: TileId }>,
+    ) => {
+      if (state.ruleSet == null) {
+        return state;
+      }
+
+      delete state.ruleSet[tileId];
+
+      const tileIds = Object.keys(state.ruleSet) as Array<TileId>;
+
+      for (const neighbourId of tileIds) {
+        let n = state.ruleSet[neighbourId];
+        if (n == null) {
+          console.log(
+            "Could not find tile while removing a tile from rule set.",
+          );
+          continue;
+        }
+        n.up = n.up.filter((m) => m !== tileId);
+        n.down = n.down.filter((m) => m !== tileId);
+        n.left = n.left.filter((m) => m !== tileId);
+        n.right = n.right.filter((m) => m !== tileId);
+      }
     },
   },
 });
