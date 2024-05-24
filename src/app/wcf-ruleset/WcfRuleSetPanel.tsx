@@ -12,6 +12,7 @@ export const WcfRuleSetPanel: React.FC<WcfRuleSetPanelProps> = () => {
     <Card width={"350px"}>
       <CardHeader text={"Rule set"} />
       <CardBody gap={2}>
+        {ruleSet && <Text>{Object.keys(ruleSet).length} tiles</Text>}
         {ruleSet ? (
           <RuleSetPanel ruleSet={ruleSet} />
         ) : (

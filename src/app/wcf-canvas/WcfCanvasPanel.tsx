@@ -44,7 +44,7 @@ export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
 
     ctx.reset();
 
-    const d = initWcfData(20, 16, ruleSet);
+    const d = initWcfData(32, 20, ruleSet);
     setLoading(true);
     try {
       cancellationTokenRef.current = new CancellationToken();
@@ -82,8 +82,8 @@ export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
 
       <Canvas
         id={id}
-        width={"320px"}
-        height={"180px"}
+        width={"640px"}
+        height={"360px"}
         style={{
           border: "1px solid " + cssColor("--silver"),
           width: "1280px",

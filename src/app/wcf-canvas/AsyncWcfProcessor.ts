@@ -2,7 +2,6 @@ import { RuleSet, TileId, WcfData } from "../../wfc/CommonTypes.ts";
 import { setTile } from "../../wfc/WcfTilePlacer.ts";
 import {
   allTilesHaveBeenSelected,
-  cloneWcfData,
   findTilesWithLowestEntropy,
   replaceSingleAllowedWithSelected,
   shuffleArray,
@@ -22,7 +21,7 @@ export const processAndRenderAsync = async (
   depth: number,
   cancellationToken: CancellationToken,
 ): Promise<WcfData> => {
-  console.log("processAndRenderAsync");
+  console.log("processAndRenderAsync", depth);
   cancellationToken.throwIfCancelled();
 
   for (let j = 0; j < 100; j++) {
@@ -48,14 +47,14 @@ export const processAndRenderAsync = async (
   }
 
   for (const c of coordinates) {
+    await asyncDelay(0);
     const tile = wcfData[c.row][c.col];
     if (tile.allowedTiles.length === 0) {
       throw new Error("Tile has no allowed tiles.");
     }
     const allowedTiles = shuffleArray(tile.allowedTiles);
     for (const allowedTile of allowedTiles) {
-      await asyncDelay(0);
-      const nextWcfData = cloneWcfData(wcfData);
+      const nextWcfData = structuredClone(wcfData);
       try {
         setTile(c.col, c.row, allowedTile, nextWcfData, ruleSet);
         return await processAndRenderAsync(
@@ -69,6 +68,9 @@ export const processAndRenderAsync = async (
           cancellationToken,
         );
       } catch (e) {
+        if (e instanceof Error) {
+          console.log("Continue after unresolved: " + e.message);
+        }
         if (cancellationToken.cancelled) {
           throw new Error("Cancelled by user.");
         }

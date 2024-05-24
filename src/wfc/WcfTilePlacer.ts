@@ -52,6 +52,9 @@ export const updateAllowedTiles = (
   wcfData: WcfData,
   ruleSet: RuleSet,
 ): boolean => {
+  if (wcfData[row][col].selectedTile) {
+    return false;
+  }
   const prevAllowedTiles = wcfData[row][col].allowedTiles;
   const nextAllowedTiles = calculateAllowedTiles(col, row, wcfData, ruleSet);
   if (nextAllowedTiles.length === 0) {
