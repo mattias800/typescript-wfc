@@ -23,7 +23,7 @@ export const process = (wcfData: WcfData, ruleSet: RuleSet): WcfData => {
     const c = getRandomCoordinateWithLowestEntropy(wcfData);
 
     if (c) {
-      let tile = wcfData[c.row][c.col];
+      const tile = wcfData[c.row][c.col];
       const randomAllowedTile = getRandomAllowedTile(tile);
       setTile(c.col, c.row, randomAllowedTile, wcfData, ruleSet);
 
@@ -73,6 +73,7 @@ export const getRandomCoordinateWithLowestEntropy = (
 
 export const findTilesWithLowestEntropy = (
   wcfData: WcfData,
+  throwOnUnresolvable?: boolean,
 ): Array<Coordinate> => {
   const rows = wcfData.length;
   const cols = wcfData[0].length;
@@ -88,6 +89,9 @@ export const findTilesWithLowestEntropy = (
       }
       if (!tile.selectedTile && tile.allowedTiles.length === 0) {
         // Warning, tile cannot be resolved.
+        if (throwOnUnresolvable) {
+          throw new Error("Tile cannot be resolved.");
+        }
         continue;
       }
 
@@ -117,4 +121,40 @@ export const getRandomAllowedTile = (tile: WcfTile): TileId => {
 
   const randomIndex = Math.floor(Math.random() * tile.allowedTiles.length);
   return tile.allowedTiles[randomIndex];
+};
+
+export const shuffleArray = <T>(array: Array<T>): Array<T> => {
+  // Create a copy of the array to avoid modifying the original array
+  const shuffledArray = array.slice();
+
+  // Fisher-Yates shuffle algorithm
+  for (let i = shuffledArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+  }
+
+  return shuffledArray;
+};
+
+export const allTilesHaveBeenSelected = (wcfData: WcfData): boolean => {
+  const rows = wcfData.length;
+  const cols = wcfData[0].length;
+
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      if (!wcfData[row][col].selectedTile) {
+        return false;
+      }
+    }
+  }
+  return true;
+};
+
+export const cloneWcfData = (wcfData: WcfData): WcfData => {
+  return wcfData.map((col) => [
+    ...col.map((r) => ({
+      selectedTile: r.selectedTile,
+      allowedTiles: [...r.allowedTiles],
+    })),
+  ]);
 };

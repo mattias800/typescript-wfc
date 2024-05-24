@@ -1,13 +1,16 @@
 import { RuleSet, TileId, WcfData } from "../../wfc/CommonTypes.ts";
 import { setTile } from "../../wfc/WcfTilePlacer.ts";
 import {
-  getRandomAllowedTile,
-  getRandomCoordinateWithLowestEntropy,
+  allTilesHaveBeenSelected,
+  cloneWcfData,
+  findTilesWithLowestEntropy,
   replaceSingleAllowedWithSelected,
+  shuffleArray,
 } from "../../wfc/WcfProcessor.ts";
 import { mapWcfDataToSourceMap } from "../../wfc/SourceMapMapper.ts";
 import { renderTileMap } from "../util/TileMapRenderer.ts";
 import { asyncDelay } from "../../util/AsyncDelay.ts";
+import { CancellationToken } from "../util/CancellationToken.ts";
 
 export const processAndRenderAsync = async (
   ctx: CanvasRenderingContext2D,
@@ -16,39 +19,63 @@ export const processAndRenderAsync = async (
   atlas: Record<TileId, HTMLImageElement>,
   tileWidth: number,
   tileHeight: number,
-) => {
-  for (let i = 0; i < 10000; i++) {
-    let workDoneInPass = false;
-    for (let j = 0; j < 100; j++) {
-      const workDone = replaceSingleAllowedWithSelected(wcfData, ruleSet);
-      if (workDone) {
-        workDoneInPass = true;
-      }
-      if (!workDone) {
-        break;
-      }
-    }
+  depth: number,
+  cancellationToken: CancellationToken,
+): Promise<WcfData> => {
+  console.log("processAndRenderAsync");
+  cancellationToken.throwIfCancelled();
 
-    const tileMap = mapWcfDataToSourceMap(wcfData);
-    renderTileMap(ctx, tileMap, atlas, tileWidth, tileHeight);
-
-    await asyncDelay(10);
-
-    const c = getRandomCoordinateWithLowestEntropy(wcfData);
-
-    if (c) {
-      let tile = wcfData[c.row][c.col];
-      const randomAllowedTile = getRandomAllowedTile(tile);
-      setTile(c.col, c.row, randomAllowedTile, wcfData, ruleSet);
-
-      workDoneInPass = true;
-    }
-
-    if (!workDoneInPass) {
-      // No more work can be done.
+  for (let j = 0; j < 100; j++) {
+    const workDone = replaceSingleAllowedWithSelected(wcfData, ruleSet);
+    if (!workDone) {
       break;
     }
-
-    await asyncDelay(10);
   }
+
+  const tileMap = mapWcfDataToSourceMap(wcfData);
+  ctx.reset();
+  renderTileMap(ctx, tileMap, atlas, tileWidth, tileHeight);
+
+  const coordinates = shuffleArray(findTilesWithLowestEntropy(wcfData, true));
+
+  if (coordinates.length === 0) {
+    // There are no more tiles that can be selected.
+    if (allTilesHaveBeenSelected(wcfData)) {
+      return wcfData;
+    } else {
+      throw new Error("There are no more resolvable tiles.");
+    }
+  }
+
+  for (const c of coordinates) {
+    const tile = wcfData[c.row][c.col];
+    if (tile.allowedTiles.length === 0) {
+      throw new Error("Tile has no allowed tiles.");
+    }
+    const allowedTiles = shuffleArray(tile.allowedTiles);
+    for (const allowedTile of allowedTiles) {
+      await asyncDelay(0);
+      const nextWcfData = cloneWcfData(wcfData);
+      try {
+        setTile(c.col, c.row, allowedTile, nextWcfData, ruleSet);
+        return await processAndRenderAsync(
+          ctx,
+          nextWcfData,
+          ruleSet,
+          atlas,
+          tileWidth,
+          tileHeight,
+          depth + 1,
+          cancellationToken,
+        );
+      } catch (e) {
+        if (cancellationToken.cancelled) {
+          throw new Error("Cancelled by user.");
+        }
+        // Did not resolve
+      }
+    }
+  }
+
+  throw new Error("This should not be reached.");
 };

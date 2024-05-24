@@ -1,6 +1,6 @@
 import * as React from "react";
-import { useCallback, useEffect, useId, useRef } from "react";
-import sourceImage from "../../assets/smb3map.png";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
+import smb3map from "../../assets/smb3map.png";
 import { Canvas } from "../../canvas/Canvas.tsx";
 import { drawChessBoard } from "../../canvas/CanvasUtils.ts";
 import { PrimaryButton, SecondaryButton } from "@stenajs-webui/elements";
@@ -14,6 +14,8 @@ import { mapNumberMapToSourceMap } from "../../wfc/SourceMapMapper.ts";
 import { wcfSlice } from "../wcf-ruleset/WcfSlice.ts";
 import { tileAtlasSlice } from "../tile-atlas/TileAtlasSlice.ts";
 import { useDialogPromise } from "@stenajs-webui/modal";
+import { useDropTarget } from "./hooks/UseDropTarget.tsx";
+import { cssColor } from "@stenajs-webui/theme";
 
 export interface TileAtlasImporterPanelProps {}
 
@@ -26,9 +28,14 @@ export const TileAtlasImporterPanel: React.FC<
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
 
+  const [sourceImage, setSourceImage] = useState<string>(() => smb3map);
   const { settingsX, settingsY } = useAppSelector(
     (state) => state.tileAtlasImporter,
   );
+
+  const { isOver, props } = useDropTarget((png) => {
+    setSourceImage(png);
+  });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -56,7 +63,7 @@ export const TileAtlasImporterPanel: React.FC<
       drawChessBoard(ctx, settingsX, settingsY);
       imageRef.current = image;
     };
-  }, [settingsX, settingsY]);
+  }, [settingsX, settingsY, sourceImage]);
 
   const onClickImport = useCallback(() => {
     const image = imageRef.current;
@@ -87,8 +94,12 @@ export const TileAtlasImporterPanel: React.FC<
     <Column gap={2}>
       <Row alignItems={"flex-end"} gap={6}>
         <TileAtlasImporterSettingsForm />
-        <PrimaryButton label={"Import"} onClick={onClickImport} />
-        <SecondaryButton label={"Cancel"} onClick={() => reject()} />
+        <Column gap={4}>
+          <Row gap={2}>
+            <PrimaryButton label={"Import"} onClick={onClickImport} />
+            <SecondaryButton label={"Cancel"} onClick={() => reject()} />
+          </Row>
+        </Column>
       </Row>
 
       <Canvas
@@ -99,8 +110,12 @@ export const TileAtlasImporterPanel: React.FC<
           width: "1280px",
           height: "720px",
           imageRendering: "pixelated",
+          border:
+            "4px solid " +
+            (isOver ? cssColor("--lhds-color-blue-400") : "transparent"),
         }}
         ref={canvasRef}
+        {...props}
       />
     </Column>
   );
