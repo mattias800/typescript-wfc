@@ -6,6 +6,7 @@ import {
   WcfTile,
 } from "./CommonTypes.ts";
 import { setTile } from "./WcfTilePlacer.ts";
+import { getRandomItem } from "../util/ListUtils.ts";
 
 export const process = (wcfData: WcfData, ruleSet: RuleSet): WcfData => {
   for (let i = 0; i < 10000; i++) {
@@ -20,7 +21,11 @@ export const process = (wcfData: WcfData, ruleSet: RuleSet): WcfData => {
       }
     }
 
-    const c = getRandomCoordinateWithLowestEntropy(wcfData);
+    const { coordinates, entropy } = findTilesWithLowestEntropy(wcfData);
+    if (entropy < 2) {
+      throw new Error("Found entropy below 2.");
+    }
+    const c = getRandomItem(coordinates);
 
     if (c) {
       const tile = wcfData[c.row][c.col];
@@ -60,21 +65,9 @@ export const replaceSingleAllowedWithSelected = (
   return anyTilesUpdated;
 };
 
-export const getRandomCoordinateWithLowestEntropy = (
-  wcfData: WcfData,
-): Coordinate | undefined => {
-  const possibleCoordinates = findTilesWithLowestEntropy(wcfData);
-  if (possibleCoordinates.length === 0) {
-    return undefined;
-  }
-  const randomIndex = Math.floor(Math.random() * possibleCoordinates.length);
-  return possibleCoordinates[randomIndex];
-};
-
 export const findTilesWithLowestEntropy = (
   wcfData: WcfData,
-  throwOnUnresolvable?: boolean,
-): Array<Coordinate> => {
+): { coordinates: Array<Coordinate>; entropy: number } => {
   const rows = wcfData.length;
   const cols = wcfData[0].length;
 
@@ -89,9 +82,6 @@ export const findTilesWithLowestEntropy = (
       }
       if (!tile.selectedTile && tile.allowedTiles.length === 0) {
         // Warning, tile cannot be resolved.
-        if (throwOnUnresolvable) {
-          throw new Error("Tile cannot be resolved.");
-        }
         continue;
       }
 
@@ -109,7 +99,10 @@ export const findTilesWithLowestEntropy = (
     }
   }
 
-  return coordinatesWithLowestEntropy;
+  return {
+    coordinates: coordinatesWithLowestEntropy,
+    entropy: currentLowestEntropy,
+  };
 };
 
 export const getRandomAllowedTile = (tile: WcfTile): TileId => {

@@ -41,7 +41,7 @@ export const processRollbackAndRenderAsync = async (
   depth: number,
   cancellationToken: CancellationToken,
 ): Promise<ProcessResult> => {
-  console.log("processAndRenderAsync", depth);
+  console.log("processRollbackAndRenderAsync", depth);
 
   if (cancellationToken.isCancelled()) {
     console.log("Cancelled by user.");
@@ -71,9 +71,16 @@ export const processRollbackAndRenderAsync = async (
     }
   }
 
-  const coordinates = findTilesWithLowestEntropy(wcfData, true);
+  const { coordinates, entropy } = findTilesWithLowestEntropy(wcfData);
 
-  console.log("Coordinates with lowest entropy", coordinates);
+  if (entropy < 2) {
+    return {
+      type: "error",
+      message: "Found entropy below 2.",
+      wcfData,
+    };
+  }
+
   coordinates.forEach((c) => {
     console.log(wcfData[c.row][c.col]);
   });
@@ -87,11 +94,17 @@ export const processRollbackAndRenderAsync = async (
         wcfData,
       };
     } else {
-      throw new Error("There are no more resolvable tiles.");
+      return {
+        type: "error",
+        message: "There are no more resolvable tiles.",
+        wcfData,
+      };
     }
   }
 
-  for (const c of coordinates) {
+  const shuffledCoordinates = shuffleArray(coordinates);
+
+  for (const c of shuffledCoordinates) {
     console.log("Random selecting x=" + c.row + " y=" + c.col);
     await asyncDelay(10);
     const tile = wcfData[c.row][c.col];
@@ -108,7 +121,7 @@ export const processRollbackAndRenderAsync = async (
         console.log("Draw tile id=" + allowedTile);
         setTile(c.col, c.row, allowedTile, nextWcfData, ruleSet);
         renderWcfData(ctx, wcfData, atlas, tileWidth, tileHeight);
-        return await processRollbackAndRenderAsync(
+        const result = await processRollbackAndRenderAsync(
           ctx,
           nextWcfData,
           ruleSet,
@@ -118,6 +131,9 @@ export const processRollbackAndRenderAsync = async (
           depth + 1,
           cancellationToken,
         );
+        if (result.type === "success" || result.type === "cancelled") {
+          return result;
+        }
       } catch (e) {
         renderWcfData(ctx, wcfData, atlas, tileWidth, tileHeight);
         if (e instanceof Error) {

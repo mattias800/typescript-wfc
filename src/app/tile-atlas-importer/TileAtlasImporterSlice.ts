@@ -9,6 +9,7 @@ export interface TileAtlasDimensionSettings {
 export interface TileAtlasImporterState {
   settingsX: TileAtlasDimensionSettings;
   settingsY: TileAtlasDimensionSettings;
+  deleteTilesWithMissingNeighbour: boolean;
 }
 
 const initialState: TileAtlasImporterState = {
@@ -22,6 +23,7 @@ const initialState: TileAtlasImporterState = {
     offset: 9,
     separation: 0,
   },
+  deleteTilesWithMissingNeighbour: true,
 };
 
 export const tileAtlasImporterSlice = createSlice({
@@ -51,6 +53,12 @@ export const tileAtlasImporterSlice = createSlice({
           ...action.payload,
         },
       };
+    },
+    setDeleteTilesWithMissingNeighbour: (
+      state,
+      action: PayloadAction<{ value: boolean }>,
+    ) => {
+      state.deleteTilesWithMissingNeighbour = action.payload.value;
     },
   },
 });

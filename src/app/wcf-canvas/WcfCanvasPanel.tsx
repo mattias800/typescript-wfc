@@ -1,6 +1,6 @@
 import * as React from "react";
 import { MouseEventHandler, useEffect, useId, useRef, useState } from "react";
-import { Column, Indent, Row } from "@stenajs-webui/core";
+import { Column, Indent, Row, Text } from "@stenajs-webui/core";
 import { PrimaryButton, SecondaryButton } from "@stenajs-webui/elements";
 import { Canvas } from "../../canvas/Canvas.tsx";
 import { cssColor } from "@stenajs-webui/theme";
@@ -18,9 +18,18 @@ export interface WcfCanvasPanelProps {}
 
 const getWcfData = (s: RootState) => s.wcf.wcfData;
 
+interface MouseTileCoordinate {
+  mouseTileX: number;
+  mouseTileY: number;
+}
+
 export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
   const id = useId();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const [mouseTileCoordinate, setMouseTileCoordinate] = useState<
+    MouseTileCoordinate | undefined
+  >();
 
   const wcfData = useAppSelector(getWcfData);
   const dispatch = useAppDispatch();
@@ -45,6 +54,22 @@ export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
   const onClickClear = () => {
     dispatch(wcfSlice.actions.resetWcfData());
     setError(undefined);
+  };
+
+  const onMouseOverCanvas: MouseEventHandler<HTMLCanvasElement> = async (
+    ev,
+  ) => {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      return;
+    }
+    const canvasScale = 2;
+    const rect = canvas.getBoundingClientRect();
+    const x = (ev.clientX - rect.left) / canvasScale;
+    const y = (ev.clientY - rect.top) / canvasScale;
+    const mouseTileX = Math.floor(x / tileWidth);
+    const mouseTileY = Math.floor(y / tileHeight);
+    setMouseTileCoordinate({ mouseTileX, mouseTileY });
   };
 
   const onClickCanvas: MouseEventHandler<HTMLCanvasElement> = async (ev) => {
@@ -147,6 +172,11 @@ export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
         ) : (
           <SecondaryButton label={"Clear"} onClick={onClickClear} />
         )}
+        {mouseTileCoordinate && (
+          <Text>
+            {mouseTileCoordinate.mouseTileX}:{mouseTileCoordinate.mouseTileY}
+          </Text>
+        )}
         {error && (
           <>
             <Indent num={4} />
@@ -160,6 +190,8 @@ export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
         width={"1280px"}
         height={"720px"}
         onClick={onClickCanvas}
+        onMouseMove={onMouseOverCanvas}
+        onMouseOut={() => setMouseTileCoordinate(undefined)}
         style={{
           border: "1px solid " + cssColor("--silver"),
           width: "2560px",

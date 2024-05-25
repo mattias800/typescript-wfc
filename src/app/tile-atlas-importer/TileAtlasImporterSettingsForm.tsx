@@ -1,12 +1,13 @@
 import * as React from "react";
 import { useCallback } from "react";
-import { Row } from "@stenajs-webui/core";
+import { Column, Row } from "@stenajs-webui/core";
 import { useAppDispatch, useAppSelector } from "../../Store.ts";
 import {
   TileAtlasDimensionSettings,
   tileAtlasImporterSlice,
 } from "./TileAtlasImporterSlice.ts";
 import { DimensionsSettingsForm } from "./DimensionsSettingsForm.tsx";
+import { SwitchWithLabel } from "@stenajs-webui/forms";
 
 export interface TileAtlasImporterSettingsFormProps {}
 
@@ -15,22 +16,32 @@ export const TileAtlasImporterSettingsForm: React.FC<
 > = () => {
   const dispatch = useAppDispatch();
 
-  const { settingsX, settingsY } = useAppSelector(
-    (state) => state.tileAtlasImporter,
-  );
+  const { settingsX, settingsY, deleteTilesWithMissingNeighbour } =
+    useAppSelector((state) => state.tileAtlasImporter);
 
   const onChangeX = useCallback(
     (fields: Partial<TileAtlasDimensionSettings>) => {
       dispatch(tileAtlasImporterSlice.actions.setSettingsX(fields));
     },
-    [],
+    [dispatch],
   );
 
   const onChangeY = useCallback(
     (fields: Partial<TileAtlasDimensionSettings>) => {
       dispatch(tileAtlasImporterSlice.actions.setSettingsY(fields));
     },
-    [],
+    [dispatch],
+  );
+
+  const onChangeDeleteTilesWithMissingNeighbour = useCallback(
+    (value: boolean) => {
+      dispatch(
+        tileAtlasImporterSlice.actions.setDeleteTilesWithMissingNeighbour({
+          value,
+        }),
+      );
+    },
+    [dispatch],
   );
 
   return (
@@ -45,6 +56,13 @@ export const TileAtlasImporterSettingsForm: React.FC<
         onValueChange={onChangeY}
         heading={"Height"}
       />
+      <Column>
+        <SwitchWithLabel
+          label={"Remove tiles with missing neighbours"}
+          value={deleteTilesWithMissingNeighbour}
+          onValueChange={onChangeDeleteTilesWithMissingNeighbour}
+        />
+      </Column>
     </Row>
   );
 };

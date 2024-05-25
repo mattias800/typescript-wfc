@@ -29,9 +29,8 @@ export const TileAtlasImporterPanel: React.FC<
   const imageRef = useRef<HTMLImageElement | null>(null);
 
   const [sourceImage, setSourceImage] = useState<string>(() => smb3map);
-  const { settingsX, settingsY } = useAppSelector(
-    (state) => state.tileAtlasImporter,
-  );
+  const { settingsX, settingsY, deleteTilesWithMissingNeighbour } =
+    useAppSelector((state) => state.tileAtlasImporter);
 
   const { isOver, props } = useDropTarget((png) => {
     setSourceImage(png);
@@ -77,14 +76,25 @@ export const TileAtlasImporterPanel: React.FC<
 
       const validationErrors = validateRuleSet(importedRuleSet);
       validationErrors.forEach((v) => console.log(v.tileId, v.message));
-      const ruleSet = deleteInvalidTiles(importedRuleSet);
 
+      const ruleSet = deleteTilesWithMissingNeighbour
+        ? deleteInvalidTiles(importedRuleSet)
+        : importedRuleSet;
+
+      const numDeletedTiles =
+        Object.keys(importedRuleSet).length - Object.keys(ruleSet).length;
+
+      if (numDeletedTiles > 0) {
+        alert(
+          "Deleted " + numDeletedTiles + " tiles that was missing neighbours.",
+        );
+      }
       resolve({
         ...r,
         ruleSet,
       });
     }
-  }, [resolve, settingsX, settingsY]);
+  }, [deleteTilesWithMissingNeighbour, resolve, settingsX, settingsY]);
 
   return (
     <Column gap={2}>
