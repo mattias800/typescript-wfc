@@ -9,7 +9,7 @@ export interface RuleDetailsModalProps {
   tileId: string;
 }
 
-type TabCode = "details" | "up" | "down" | "left" | "right";
+type TabCode = "details" | "updown" | "leftright";
 
 export const RuleDetailsModal: React.FC<RuleDetailsModalProps> = ({
   tileId,
@@ -28,32 +28,20 @@ export const RuleDetailsModal: React.FC<RuleDetailsModalProps> = ({
           onClick={() => setTab("details")}
         />
         <Tab
-          label={"Up"}
-          selected={tab === "up"}
-          onClick={() => setTab("up")}
+          label={"Up & down"}
+          selected={tab === "updown"}
+          onClick={() => setTab("updown")}
         />
         <Tab
-          label={"Down"}
-          selected={tab === "down"}
-          onClick={() => setTab("down")}
-        />
-        <Tab
-          label={"Left"}
-          selected={tab === "left"}
-          onClick={() => setTab("left")}
-        />
-        <Tab
-          label={"Right"}
-          selected={tab === "right"}
-          onClick={() => setTab("right")}
+          label={"Left & right"}
+          selected={tab === "leftright"}
+          onClick={() => setTab("leftright")}
         />
       </TabMenu>
       {tab === "details" && <RuleDetailsPanel tileId={tileId} />}
-      {tab === "up" && <RuleEditorPanel tileId={tileId} direction={"up"} />}
-      {tab === "down" && <RuleEditorPanel tileId={tileId} direction={"down"} />}
-      {tab === "left" && <RuleEditorPanel tileId={tileId} direction={"left"} />}
-      {tab === "right" && (
-        <RuleEditorPanel tileId={tileId} direction={"right"} />
+      {tab === "updown" && <RuleEditorPanel tileId={tileId} direction={"up"} />}
+      {tab === "leftright" && (
+        <RuleEditorPanel tileId={tileId} direction={"left"} />
       )}
     </ModalBody>
   );

@@ -2,7 +2,7 @@ import * as React from "react";
 import { AllowedNeighbours, TileId } from "../../wfc/CommonTypes.ts";
 import { Row } from "@stenajs-webui/core";
 import { RootState, useAppSelector } from "../../Store.ts";
-import { RuleTileCombinationSwitch } from "./RuleTileCombinationSwitch.tsx";
+import { UpDownNeighbourCombinationSwitch } from "./UpDownNeighbourCombinationSwitch.tsx";
 import { Banner } from "@stenajs-webui/elements";
 
 export interface RuleEditorPanelProps {
@@ -27,10 +27,11 @@ export const RuleEditorPanel: React.FC<RuleEditorPanelProps> = ({
   return (
     <Row flexWrap={"wrap"} gap={4}>
       {tileIds.map((otherTileId) => (
-        <RuleTileCombinationSwitch
+        <UpDownNeighbourCombinationSwitch
           tileId={tileId}
           neighbourId={otherTileId}
           direction={direction}
+          row={direction === "left"}
         />
       ))}
     </Row>

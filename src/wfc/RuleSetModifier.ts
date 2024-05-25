@@ -85,7 +85,7 @@ export const addAllowedNeighbour = (
     dir.push(neighbourId);
   }
 
-  const otherDir = ruleSet[neighbourId][direction];
+  const otherDir = ruleSet[neighbourId][getInverseDirection(direction)];
   if (!otherDir.includes(tileId)) {
     otherDir.push(tileId);
   }
@@ -97,9 +97,18 @@ export const removeAllowedNeighbour = (
   neighbourId: TileId,
   direction: keyof AllowedNeighbours,
 ) => {
+  const oppositeDirection = getInverseDirection(direction);
+
   const dir = ruleSet[tileId]?.[direction];
   if (dir?.includes(neighbourId)) {
     ruleSet[tileId][direction] = dir.filter((f) => f !== neighbourId);
+  }
+
+  const otherDir = ruleSet[neighbourId]?.[oppositeDirection];
+  if (otherDir?.includes(tileId)) {
+    ruleSet[neighbourId][oppositeDirection] = otherDir.filter(
+      (f) => f !== tileId,
+    );
   }
 };
 
