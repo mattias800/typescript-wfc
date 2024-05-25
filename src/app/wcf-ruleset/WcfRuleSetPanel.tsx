@@ -19,13 +19,10 @@ import { tileAtlasSlice } from "../tile-atlas/TileAtlasSlice.ts";
 
 export interface WcfRuleSetPanelProps {}
 
-const getTileAtlasImporterState = (state: RootState) => state.tileAtlasImporter;
 const getWcfState = (state: RootState) => state.wcf;
 
 export const WcfRuleSetPanel: React.FC<WcfRuleSetPanelProps> = () => {
   const { ruleSet } = useAppSelector(getWcfState);
-
-  const { settingsX, settingsY } = useAppSelector(getTileAtlasImporterState);
 
   const dispatch = useAppDispatch();
   const [dialog, { show }] = useModalDialog<
@@ -41,14 +38,14 @@ export const WcfRuleSetPanel: React.FC<WcfRuleSetPanelProps> = () => {
         const { ruleSet, tilesRecord } = result;
         dispatch(tileAtlasSlice.actions.reset());
         dispatch(
-          tileAtlasSlice.actions.setTiles({
-            tiles: tilesRecord,
+          tileAtlasSlice.actions.setTileSize({
+            tileWidth: result.tileSizeX,
+            tileHeight: result.tileSizeY,
           }),
         );
         dispatch(
-          tileAtlasSlice.actions.setTileSize({
-            tileWidth: settingsX.tileSize,
-            tileHeight: settingsY.tileSize,
+          tileAtlasSlice.actions.setTiles({
+            tiles: tilesRecord,
           }),
         );
 

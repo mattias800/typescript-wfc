@@ -92,6 +92,8 @@ export const TileAtlasImporterPanel: React.FC<
       resolve({
         ...r,
         ruleSet,
+        tileSizeX: settingsX.tileSize,
+        tileSizeY: settingsY.tileSize,
       });
     }
   }, [deleteTilesWithMissingNeighbour, resolve, settingsX, settingsY]);

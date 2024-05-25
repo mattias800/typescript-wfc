@@ -41,7 +41,7 @@ export const processRollbackAndRenderAsync = async (
   depth: number,
   cancellationToken: CancellationToken,
 ): Promise<ProcessResult> => {
-  console.log("processRollbackAndRenderAsync", depth);
+  console.log("processRollbackAndRenderAsync", depth, tileWidth, tileHeight);
 
   if (cancellationToken.isCancelled()) {
     console.log("Cancelled by user.");
@@ -108,9 +108,11 @@ export const processRollbackAndRenderAsync = async (
     console.log("Random selecting x=" + c.row + " y=" + c.col);
     await asyncDelay(10);
     const tile = wcfData[c.row][c.col];
+
     if (tile.allowedTiles.length === 0) {
-      throw new Error("Tile has no allowed tiles.");
+      continue;
     }
+
     const allowedTiles = shuffleArray([...tile.allowedTiles]);
 
     console.log("Trying allowed tiles", allowedTiles);

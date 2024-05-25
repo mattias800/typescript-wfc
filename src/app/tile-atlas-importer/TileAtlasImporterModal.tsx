@@ -7,6 +7,8 @@ export interface TileAtlasImporterModalProps {}
 
 export interface TileAtlasImporterModalResult {
   ruleSet: RuleSet;
+  tileSizeX: number;
+  tileSizeY: number;
   tiles: Array<ImageData>;
   tilesRecord: Record<TileId, string>;
   tileMap: Array<Array<number>>;

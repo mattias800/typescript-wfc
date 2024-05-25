@@ -17,8 +17,8 @@ interface WcfState {
 const initialState: WcfState = {
   ruleSet: undefined,
   wcfData: undefined,
-  cols: 20,
-  rows: 20,
+  cols: 80,
+  rows: 45,
 };
 
 export const wcfSlice = createSlice({
