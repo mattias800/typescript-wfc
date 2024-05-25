@@ -97,16 +97,19 @@ export const TileAtlasImporterPanel: React.FC<
   }, [deleteTilesWithMissingNeighbour, resolve, settingsX, settingsY]);
 
   return (
-    <Column gap={2}>
-      <Row alignItems={"flex-end"} gap={6}>
+    <Row gap={2} alignItems={"flex-start"}>
+      <Column
+        alignItems={"flex-end"}
+        gap={6}
+        justifyContent={"space-between"}
+        flex={1}
+      >
         <TileAtlasImporterSettingsForm />
-        <Column gap={4}>
-          <Row gap={2}>
-            <PrimaryButton label={"Import"} onClick={onClickImport} />
-            <SecondaryButton label={"Cancel"} onClick={() => reject()} />
-          </Row>
-        </Column>
-      </Row>
+        <Row gap={2}>
+          <PrimaryButton label={"Import"} onClick={onClickImport} />
+          <SecondaryButton label={"Cancel"} onClick={() => reject()} />
+        </Row>
+      </Column>
 
       <Canvas
         id={id}
@@ -123,6 +126,6 @@ export const TileAtlasImporterPanel: React.FC<
         ref={canvasRef}
         {...props}
       />
-    </Column>
+    </Row>
   );
 };

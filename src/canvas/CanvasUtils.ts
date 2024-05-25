@@ -8,8 +8,11 @@ export const drawChessBoard = (
   let lightCellColor = "#ddb18060";
   let darkCellColor = "#7c330c60";
 
-  for (let y = 0; y < ctx.canvas.height; y++) {
-    for (let x = 0; x < ctx.canvas.width; x++) {
+  const maxY = settingsY.limitNumTiles ? settingsY.numTilesLimit : 99;
+  const maxX = settingsX.limitNumTiles ? settingsX.numTilesLimit : 99;
+
+  for (let y = 0; y < maxY; y++) {
+    for (let x = 0; x < maxX; x++) {
       const offset = y % 2 === 0 ? 1 : 0;
       const color = (x + offset) % 2 === 0 ? lightCellColor : darkCellColor;
       ctx.fillStyle = color;

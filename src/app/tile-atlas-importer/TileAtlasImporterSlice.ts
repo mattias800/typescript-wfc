@@ -5,6 +5,8 @@ export interface TileAtlasDimensionSettings {
   tileSize: number;
   offset: number;
   separation: number;
+  limitNumTiles: boolean;
+  numTilesLimit: number;
 }
 export interface TileAtlasImporterState {
   settingsX: TileAtlasDimensionSettings;
@@ -17,13 +19,17 @@ const initialState: TileAtlasImporterState = {
     tileSize: 16,
     offset: 8,
     separation: 0,
+    limitNumTiles: false,
+    numTilesLimit: 32,
   },
   settingsY: {
     tileSize: 16,
     offset: 9,
     separation: 0,
+    limitNumTiles: false,
+    numTilesLimit: 32,
   },
-  deleteTilesWithMissingNeighbour: true,
+  deleteTilesWithMissingNeighbour: false,
 };
 
 export const tileAtlasImporterSlice = createSlice({

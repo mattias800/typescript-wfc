@@ -1,8 +1,15 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
-import { RuleSet, TileId, WfcData } from "../../wfc/CommonTypes.ts";
 import {
+  AllowedNeighbours,
+  RuleSet,
+  TileId,
+  WfcData,
+} from "../../wfc/CommonTypes.ts";
+import {
+  addAllowedNeighbour,
   deleteTileFromRuleSet,
+  removeAllowedNeighbour,
   replaceTileInRuleSet,
 } from "../../wfc/RuleSetModifier.ts";
 import { initWfcData } from "../../wfc/WfcTileFactory.ts"; // Define a type for the slice state
@@ -61,6 +68,38 @@ export const wfcSlice = createSlice({
       }
 
       replaceTileInRuleSet(state.ruleSet, tileIdToDelete, tileIdToReplaceIt);
+    },
+    addAllowedNeighbour: (
+      state,
+      {
+        payload: { tileId, neighbourId, direction },
+      }: PayloadAction<{
+        tileId: TileId;
+        neighbourId: TileId;
+        direction: keyof AllowedNeighbours;
+      }>,
+    ) => {
+      if (state.ruleSet == null) {
+        return state;
+      }
+
+      addAllowedNeighbour(state.ruleSet, tileId, neighbourId, direction);
+    },
+    removeAllowedNeighbour: (
+      state,
+      {
+        payload: { tileId, neighbourId, direction },
+      }: PayloadAction<{
+        tileId: TileId;
+        neighbourId: TileId;
+        direction: keyof AllowedNeighbours;
+      }>,
+    ) => {
+      if (state.ruleSet == null) {
+        return state;
+      }
+
+      removeAllowedNeighbour(state.ruleSet, tileId, neighbourId, direction);
     },
   },
 });

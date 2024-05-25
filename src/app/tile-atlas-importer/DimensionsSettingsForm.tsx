@@ -2,6 +2,7 @@ import * as React from "react";
 import { Column, Heading } from "@stenajs-webui/core";
 import { Label } from "@stenajs-webui/elements";
 import { TileAtlasDimensionSettings } from "./TileAtlasImporterSlice.ts";
+import { SwitchWithLabel } from "@stenajs-webui/forms";
 
 export interface DimensionsSettingsFormProps {
   heading: string;
@@ -11,7 +12,7 @@ export interface DimensionsSettingsFormProps {
 
 export const DimensionsSettingsForm: React.FC<DimensionsSettingsFormProps> = ({
   heading,
-  settings: { offset, separation, tileSize },
+  settings: { offset, separation, tileSize, numTilesLimit, limitNumTiles },
   onValueChange,
 }) => {
   return (
@@ -49,6 +50,23 @@ export const DimensionsSettingsForm: React.FC<DimensionsSettingsFormProps> = ({
           max={16}
           onChange={(ev) =>
             onValueChange({ separation: parseInt(ev.target.value) })
+          }
+        />
+      </Label>
+      <SwitchWithLabel
+        label={"Enable limit"}
+        value={limitNumTiles}
+        onValueChange={(value) => onValueChange({ limitNumTiles: value })}
+      />
+      <Label text={"Tile limit: " + numTilesLimit + " tiles"}>
+        <input
+          type={"range"}
+          value={numTilesLimit}
+          step={1}
+          min={0}
+          max={16}
+          onChange={(ev) =>
+            onValueChange({ numTilesLimit: parseInt(ev.target.value) })
           }
         />
       </Label>

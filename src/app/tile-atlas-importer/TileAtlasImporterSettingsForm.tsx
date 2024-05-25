@@ -45,24 +45,24 @@ export const TileAtlasImporterSettingsForm: React.FC<
   );
 
   return (
-    <Row gap={2}>
-      <DimensionsSettingsForm
-        settings={settingsX}
-        onValueChange={onChangeX}
-        heading={"Width"}
-      />
-      <DimensionsSettingsForm
-        settings={settingsY}
-        onValueChange={onChangeY}
-        heading={"Height"}
-      />
-      <Column>
-        <SwitchWithLabel
-          label={"Remove tiles with missing neighbours"}
-          value={deleteTilesWithMissingNeighbour}
-          onValueChange={onChangeDeleteTilesWithMissingNeighbour}
+    <Column gap={6}>
+      <Row gap={2}>
+        <DimensionsSettingsForm
+          settings={settingsX}
+          onValueChange={onChangeX}
+          heading={"Width"}
         />
-      </Column>
-    </Row>
+        <DimensionsSettingsForm
+          settings={settingsY}
+          onValueChange={onChangeY}
+          heading={"Height"}
+        />
+      </Row>
+      <SwitchWithLabel
+        label={"Remove tiles with missing neighbours"}
+        value={deleteTilesWithMissingNeighbour}
+        onValueChange={onChangeDeleteTilesWithMissingNeighbour}
+      />
+    </Column>
   );
 };

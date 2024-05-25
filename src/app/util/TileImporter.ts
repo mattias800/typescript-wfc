@@ -22,9 +22,17 @@ export const extractUniqueTiles = (
   const tilesRecord: Record<TileId, string> = {};
   let numRedundantTiles = 0;
 
-  for (let y = 0; y < imageData.height / settingsY.tileSize; y++) {
+  const maxY = settingsY.limitNumTiles
+    ? settingsY.numTilesLimit
+    : imageData.height / settingsY.tileSize;
+
+  const maxX = settingsX.limitNumTiles
+    ? settingsX.numTilesLimit
+    : imageData.width / settingsX.tileSize;
+
+  for (let y = 0; y < maxY; y++) {
     tileMap.push([]);
-    for (let x = 0; x < imageData.width / settingsX.tileSize; x++) {
+    for (let x = 0; x < maxX; x++) {
       const chunk = createSubImageData(
         imageData,
         settingsX.offset + x * settingsX.tileSize + x * settingsX.separation,
