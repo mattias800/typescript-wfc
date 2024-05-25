@@ -1,15 +1,14 @@
 import { RuleSet, TileId, WcfData } from "../../wfc/CommonTypes.ts";
 import { setTile } from "../../wfc/WcfTilePlacer.ts";
 import {
-  allTilesHaveBeenSelected,
   findTilesWithLowestEntropy,
   replaceSingleAllowedWithSelected,
-  shuffleArray,
 } from "../../wfc/WcfProcessor.ts";
 import { mapWcfDataToSourceMap } from "../../wfc/SourceMapMapper.ts";
-import { renderTileMap } from "../util/TileMapRenderer.ts";
+import { renderTileMap, renderWcfData } from "../util/TileMapRenderer.ts";
 import { asyncDelay } from "../../util/AsyncDelay.ts";
 import { CancellationToken } from "../util/CancellationToken.ts";
+import { getRandomItem } from "../../util/ListUtils.ts";
 
 export const processAndRenderAsync = async (
   ctx: CanvasRenderingContext2D,
@@ -24,60 +23,58 @@ export const processAndRenderAsync = async (
   console.log("processAndRenderAsync", depth);
   cancellationToken.throwIfCancelled();
 
-  for (let j = 0; j < 100; j++) {
-    const workDone = replaceSingleAllowedWithSelected(wcfData, ruleSet);
-    if (!workDone) {
-      break;
+  for (let i = 0; i < 10000; i++) {
+    for (let j = 0; j < 10000; j++) {
+      console.log("Collapsing tiles");
+      let workDone = false;
+      try {
+        workDone = replaceSingleAllowedWithSelected(wcfData, ruleSet);
+      } catch (e) {
+        renderWcfData(ctx, wcfData, atlas, tileWidth, tileHeight);
+        return wcfData;
+      }
+      const tileMap = mapWcfDataToSourceMap(wcfData);
+      ctx.reset();
+      renderTileMap(ctx, tileMap, atlas, tileWidth, tileHeight);
+      if (!workDone) {
+        console.log("Collapse done! Mo more tiles found.");
+        break;
+      }
+      console.log("Collapse work done! Trying again");
     }
-  }
 
-  const tileMap = mapWcfDataToSourceMap(wcfData);
-  ctx.reset();
-  renderTileMap(ctx, tileMap, atlas, tileWidth, tileHeight);
+    renderWcfData(ctx, wcfData, atlas, tileWidth, tileHeight);
 
-  const coordinates = shuffleArray(findTilesWithLowestEntropy(wcfData, true));
+    const coordinates = findTilesWithLowestEntropy(wcfData, true);
+    console.log("coordinates with lowest entropy", coordinates);
+    const c = getRandomItem(coordinates);
 
-  if (coordinates.length === 0) {
-    // There are no more tiles that can be selected.
-    if (allTilesHaveBeenSelected(wcfData)) {
-      return wcfData;
-    } else {
-      throw new Error("There are no more resolvable tiles.");
-    }
-  }
-
-  for (const c of coordinates) {
-    await asyncDelay(0);
+    await asyncDelay(10);
     const tile = wcfData[c.row][c.col];
     if (tile.allowedTiles.length === 0) {
       throw new Error("Tile has no allowed tiles.");
     }
-    const allowedTiles = shuffleArray(tile.allowedTiles);
-    for (const allowedTile of allowedTiles) {
-      const nextWcfData = structuredClone(wcfData);
-      try {
-        setTile(c.col, c.row, allowedTile, nextWcfData, ruleSet);
-        return await processAndRenderAsync(
-          ctx,
-          nextWcfData,
-          ruleSet,
-          atlas,
-          tileWidth,
-          tileHeight,
-          depth + 1,
-          cancellationToken,
-        );
-      } catch (e) {
-        if (e instanceof Error) {
-          console.log("Continue after unresolved: " + e.message);
-        }
-        if (cancellationToken.cancelled) {
-          throw new Error("Cancelled by user.");
-        }
-        // Did not resolve
+    const allowedTile = getRandomItem(tile.allowedTiles);
+
+    console.log("allowedTile", allowedTile);
+
+    try {
+      console.log("Draw tile id=" + allowedTile);
+      setTile(c.col, c.row, allowedTile, wcfData, ruleSet);
+    } catch (e) {
+      if (e instanceof Error) {
+        console.log("Set tile failed: " + e.message);
+        renderWcfData(ctx, wcfData, atlas, tileWidth, tileHeight);
+        return wcfData;
       }
+      if (cancellationToken.cancelled) {
+        throw new Error("Cancelled by user.");
+      }
+      // Did not resolve
+    } finally {
+      renderWcfData(ctx, wcfData, atlas, tileWidth, tileHeight);
     }
   }
 
-  throw new Error("This should not be reached.");
+  return wcfData;
 };

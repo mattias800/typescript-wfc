@@ -13,6 +13,7 @@ export interface RuleSetPanelProps {
 export const RuleSetPanel: React.FC<RuleSetPanelProps> = ({ ruleSet }) => {
   const tileIds = Object.keys(ruleSet) as Array<TileId>;
   const [dialog, { show }] = useModalDialog(RuleDetailsModal);
+
   return (
     <Row gap={2} flexWrap={"wrap"}>
       {dialog}

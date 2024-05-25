@@ -18,28 +18,28 @@ export const extractRuleSet = (source: SourceMap): RuleSet => {
       };
 
       if (col > 0) {
-        let t = source[row][col - 1];
+        const t = source[row][col - 1];
         if (!ruleSet[tile].left.includes(t)) {
           ruleSet[tile].left.push(t);
           ruleSet[tile].left.sort();
         }
       }
       if (col < cols - 1) {
-        let t = source[row][col + 1];
+        const t = source[row][col + 1];
         if (!ruleSet[tile].right.includes(t)) {
           ruleSet[tile].right.push(t);
           ruleSet[tile].right.sort();
         }
       }
       if (row > 0) {
-        let t = source[row - 1][col];
+        const t = source[row - 1][col];
         if (!ruleSet[tile].up.includes(t)) {
           ruleSet[tile].up.push(t);
           ruleSet[tile].up.sort();
         }
       }
       if (row < rows - 1) {
-        let t = source[row + 1][col];
+        const t = source[row + 1][col];
         if (!ruleSet[tile].down.includes(t)) {
           ruleSet[tile].down.push(t);
           ruleSet[tile].down.sort();

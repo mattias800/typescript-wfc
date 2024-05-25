@@ -6,7 +6,10 @@ import { WcfCanvasPanel } from "./app/wcf-canvas/WcfCanvasPanel.tsx";
 
 export const App: React.FC = () => {
   return (
-    <PageLayout leftContent={<WcfRuleSetPanel />}>
+    <PageLayout
+      leftContent={<WcfRuleSetPanel />}
+      /* rightContent={<TileAtlasList />} */
+    >
       <WcfCanvasPanel />
     </PageLayout>
   );

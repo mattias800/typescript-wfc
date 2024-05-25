@@ -20,6 +20,7 @@ export const extractUniqueTiles = (
   const tiles: Array<ImageData> = [];
   const tileMap: Array<Array<number>> = [];
   const tilesRecord: Record<TileId, string> = {};
+  let numRedundantTiles = 0;
 
   for (let y = 0; y < imageData.height / settingsY.tileSize; y++) {
     tileMap.push([]);
@@ -36,12 +37,14 @@ export const extractUniqueTiles = (
         tiles.push(chunk);
         tileMap[tileMap.length - 1].push(tiles.length - 1);
         tilesRecord[String(tiles.length - 1)] = imageDataToBase64(chunk);
-        console.log("Found unique tile no " + tileMap.length);
       } else {
         tileMap[tileMap.length - 1].push(i);
+        numRedundantTiles++;
       }
     }
   }
+  console.log("Found " + tiles.length + " unique tiles.");
+  console.log("Skipped " + numRedundantTiles + " redundant tiles.");
 
   return {
     tiles,

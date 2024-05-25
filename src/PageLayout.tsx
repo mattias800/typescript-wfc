@@ -2,9 +2,6 @@ import * as React from "react";
 import { PropsWithChildren, ReactNode } from "react";
 import { Column, Row } from "@stenajs-webui/core";
 import { NavBar, NavBarHeading } from "@stenajs-webui/panels";
-import { SecondaryButton } from "@stenajs-webui/elements";
-import { useModalDialog } from "@stenajs-webui/modal";
-import { TileAtlasImporterModal } from "./app/tile-atlas-importer/TileAtlasImporterModal.tsx";
 
 export interface PageLayoutProps extends PropsWithChildren {
   leftContent?: ReactNode;
@@ -16,12 +13,9 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
   rightContent,
   children,
 }) => {
-  const [dialog, { show }] = useModalDialog(TileAtlasImporterModal);
-
   return (
     <Column>
-      {dialog}
-      <NavBar center={<SecondaryButton label={"Import"} onClick={show} />}>
+      <NavBar>
         <NavBarHeading>Wave function collapse</NavBarHeading>
       </NavBar>
       <Row indent={2} spacing={2} gap={2}>

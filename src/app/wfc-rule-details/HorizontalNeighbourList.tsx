@@ -3,6 +3,7 @@ import { Column, Row } from "@stenajs-webui/core";
 import { AllowedNeighbours } from "../../wfc/CommonTypes.ts";
 import { TileAtlasImage } from "../common/components/TileAtlasImage.tsx";
 import { Label } from "@stenajs-webui/elements";
+import { TileAtlasText } from "../common/components/TileAtlasText.tsx";
 
 export interface HorizontalNeighbourListProps {
   tileId: string;
@@ -18,6 +19,7 @@ export const HorizontalNeighbourList: React.FC<
         <Column gap={1}>
           {left.map((neighbourId) => (
             <Row key={neighbourId}>
+              <TileAtlasText text={neighbourId} />
               <TileAtlasImage tileId={neighbourId} />
               <TileAtlasImage tileId={tileId} />
             </Row>
@@ -30,6 +32,7 @@ export const HorizontalNeighbourList: React.FC<
             <Row key={neighbourId}>
               <TileAtlasImage tileId={tileId} />
               <TileAtlasImage tileId={neighbourId} />
+              <TileAtlasText text={neighbourId} />
             </Row>
           ))}
         </Column>

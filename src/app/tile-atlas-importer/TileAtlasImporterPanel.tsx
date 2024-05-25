@@ -5,17 +5,18 @@ import { Canvas } from "../../canvas/Canvas.tsx";
 import { drawChessBoard } from "../../canvas/CanvasUtils.ts";
 import { PrimaryButton, SecondaryButton } from "@stenajs-webui/elements";
 import { TileAtlasImporterSettingsForm } from "./TileAtlasImporterSettingsForm.tsx";
-import { useAppDispatch, useAppSelector } from "../../Store.ts";
+import { useAppSelector } from "../../Store.ts";
 import { Column, Row } from "@stenajs-webui/core";
 import { extractUniqueTiles } from "../util/TileImporter.ts";
 import { getImageDataFromImage } from "../util/ImageDataUtil.ts";
 import { extractRuleSet } from "../../wfc/RuleExtractor.ts";
 import { mapNumberMapToSourceMap } from "../../wfc/SourceMapMapper.ts";
-import { wcfSlice } from "../wcf-ruleset/WcfSlice.ts";
-import { tileAtlasSlice } from "../tile-atlas/TileAtlasSlice.ts";
 import { useDialogPromise } from "@stenajs-webui/modal";
 import { useDropTarget } from "./hooks/UseDropTarget.tsx";
 import { cssColor } from "@stenajs-webui/theme";
+import { validateRuleSet } from "../../wfc/RuleSetValidator.ts";
+import { deleteInvalidTiles } from "../../wfc/RuleSetModifier.ts";
+import { TileAtlasImporterModalResult } from "./TileAtlasImporterModal.tsx";
 
 export interface TileAtlasImporterPanelProps {}
 
@@ -23,8 +24,7 @@ export const TileAtlasImporterPanel: React.FC<
   TileAtlasImporterPanelProps
 > = () => {
   const id = useId();
-  const dispatch = useAppDispatch();
-  const { resolve, reject } = useDialogPromise();
+  const { resolve, reject } = useDialogPromise<TileAtlasImporterModalResult>();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
 
@@ -70,25 +70,21 @@ export const TileAtlasImporterPanel: React.FC<
     if (image) {
       const imageData = getImageDataFromImage(image);
       const r = extractUniqueTiles(settingsX, settingsY, imageData);
-      console.log(r);
-      const ruleSet = extractRuleSet(mapNumberMapToSourceMap(r.tileMap));
 
-      dispatch(wcfSlice.actions.setRuleSet({ ruleSet }));
-      dispatch(tileAtlasSlice.actions.reset());
-      dispatch(
-        tileAtlasSlice.actions.setTiles({
-          tiles: r.tilesRecord,
-        }),
+      const importedRuleSet = extractRuleSet(
+        mapNumberMapToSourceMap(r.tileMap),
       );
-      dispatch(
-        tileAtlasSlice.actions.setTileSize({
-          tileWidth: settingsX.tileSize,
-          tileHeight: settingsY.tileSize,
-        }),
-      );
-      resolve();
+
+      const validationErrors = validateRuleSet(importedRuleSet);
+      validationErrors.forEach((v) => console.log(v.tileId, v.message));
+      const ruleSet = deleteInvalidTiles(importedRuleSet);
+
+      resolve({
+        ...r,
+        ruleSet,
+      });
     }
-  }, [dispatch, resolve, settingsX, settingsY]);
+  }, [resolve, settingsX, settingsY]);
 
   return (
     <Column gap={2}>

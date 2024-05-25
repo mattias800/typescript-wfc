@@ -1,13 +1,24 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
-import { RuleSet, TileId } from "../../wfc/CommonTypes.ts"; // Define a type for the slice state
+import { RuleSet, TileId, WcfData } from "../../wfc/CommonTypes.ts";
+import {
+  deleteTileFromRuleSet,
+  replaceTileInRuleSet,
+} from "../../wfc/RuleSetModifier.ts";
+import { initWcfData } from "../../wfc/WcfTileFactory.ts"; // Define a type for the slice state
 
 interface WcfState {
   ruleSet: RuleSet | undefined;
+  wcfData: WcfData | undefined;
+  cols: number;
+  rows: number;
 }
 
 const initialState: WcfState = {
   ruleSet: undefined,
+  wcfData: undefined,
+  cols: 20,
+  rows: 20,
 };
 
 export const wcfSlice = createSlice({
@@ -16,6 +27,15 @@ export const wcfSlice = createSlice({
   reducers: {
     reset: (state) => {
       state.ruleSet = undefined;
+    },
+    resetWcfData: (state) => {
+      if (state.ruleSet == null) {
+        return;
+      }
+      state.wcfData = initWcfData(state.cols, state.rows, state.ruleSet);
+    },
+    setWcfData: (state, action: PayloadAction<{ wcfData: WcfData }>) => {
+      state.wcfData = action.payload.wcfData;
     },
     setRuleSet: (state, action: PayloadAction<{ ruleSet: RuleSet }>) => {
       state.ruleSet = action.payload.ruleSet;
@@ -28,23 +48,7 @@ export const wcfSlice = createSlice({
         return state;
       }
 
-      delete state.ruleSet[tileId];
-
-      const tileIds = Object.keys(state.ruleSet) as Array<TileId>;
-
-      for (const neighbourId of tileIds) {
-        let n = state.ruleSet[neighbourId];
-        if (n == null) {
-          console.log(
-            "Could not find tile while removing a tile from rule set.",
-          );
-          continue;
-        }
-        n.up = n.up.filter((m) => m !== tileId);
-        n.down = n.down.filter((m) => m !== tileId);
-        n.left = n.left.filter((m) => m !== tileId);
-        n.right = n.right.filter((m) => m !== tileId);
-      }
+      deleteTileFromRuleSet(state.ruleSet, tileId);
     },
     replaceTileWithOtherTile: (
       state,
@@ -56,29 +60,7 @@ export const wcfSlice = createSlice({
         return state;
       }
 
-      delete state.ruleSet[tileIdToDelete];
-
-      const tileIds = Object.keys(state.ruleSet) as Array<TileId>;
-
-      for (const neighbourId of tileIds) {
-        let n = state.ruleSet[neighbourId];
-        if (n == null) {
-          console.log(
-            "Could not find tile while replacing a tile from rule set.",
-          );
-          continue;
-        }
-        n.up = n.up.map((m) => (m !== tileIdToDelete ? m : tileIdToReplaceIt));
-        n.down = n.down.map((m) =>
-          m !== tileIdToDelete ? m : tileIdToReplaceIt,
-        );
-        n.left = n.left.map((m) =>
-          m !== tileIdToDelete ? m : tileIdToReplaceIt,
-        );
-        n.right = n.right.map((m) =>
-          m !== tileIdToDelete ? m : tileIdToReplaceIt,
-        );
-      }
+      replaceTileInRuleSet(state.ruleSet, tileIdToDelete, tileIdToReplaceIt);
     },
   },
 });

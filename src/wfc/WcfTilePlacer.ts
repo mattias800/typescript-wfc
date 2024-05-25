@@ -7,6 +7,7 @@ export const setTile = (
   wcfData: WcfData,
   ruleSet: RuleSet,
 ) => {
+  console.log("setTile x=" + col + " y=" + row + " tileId=" + tile);
   wcfData[row][col].selectedTile = tile;
   updateNeighboursAllowedTiles(col, row, wcfData, ruleSet);
 };
@@ -57,10 +58,16 @@ export const updateAllowedTiles = (
   }
   const prevAllowedTiles = wcfData[row][col].allowedTiles;
   const nextAllowedTiles = calculateAllowedTiles(col, row, wcfData, ruleSet);
+  wcfData[row][col].allowedTiles = nextAllowedTiles;
+
   if (nextAllowedTiles.length === 0) {
+    console.log("col", col);
+    console.log("row", row);
+    console.log("wcfData", wcfData);
+
     throw new Error("updateAllowedTiles caused 0 allowed tiles.");
   }
-  wcfData[row][col].allowedTiles = nextAllowedTiles;
+
   return prevAllowedTiles.length !== nextAllowedTiles.length;
 };
 
