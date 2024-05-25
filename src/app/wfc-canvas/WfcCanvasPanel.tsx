@@ -9,22 +9,22 @@ import { RootState, useAppDispatch, useAppSelector } from "../../Store.ts";
 import { CancellationToken } from "../util/CancellationToken.ts";
 import { useModalDialog } from "@stenajs-webui/modal";
 import { RuleDetailsModal } from "../wfc-rule-details/RuleDetailsModal.tsx";
-import { processRollbackAndRenderAsync } from "./AsyncWcfRollbackProcessor.ts";
-import { wcfSlice } from "../wcf-ruleset/WcfSlice.ts";
-import { renderWcfData } from "../util/TileMapRenderer.ts";
+import { processRollbackAndRenderAsync } from "./AsyncWfcRollbackProcessor.ts";
+import { wfcSlice } from "../wfc-ruleset/WfcSlice.ts";
+import { renderWfcData } from "../util/TileMapRenderer.ts";
 import { ErrorPanel } from "./ErrorPanel.tsx";
 import { SwitchWithLabel } from "@stenajs-webui/forms";
 
-export interface WcfCanvasPanelProps {}
+export interface WfcCanvasPanelProps {}
 
-const getWcfData = (s: RootState) => s.wcf.wcfData;
+const getWfcData = (s: RootState) => s.wfc.wfcData;
 
 interface MouseTileCoordinate {
   mouseTileX: number;
   mouseTileY: number;
 }
 
-export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
+export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
   const id = useId();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -32,7 +32,7 @@ export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
     MouseTileCoordinate | undefined
   >();
 
-  const wcfData = useAppSelector(getWcfData);
+  const wfcData = useAppSelector(getWfcData);
   const dispatch = useAppDispatch();
 
   const [allowZeroEntropyTiles, setAllowZeroEntropyTiles] = useState(true);
@@ -47,14 +47,14 @@ export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
     (state) => state.tileAtlas,
   );
 
-  const { ruleSet } = useAppSelector((state) => state.wcf);
+  const { ruleSet } = useAppSelector((state) => state.wfc);
 
   const onClickCancel = () => {
     cancellationTokenRef.current?.cancel();
   };
 
   const onClickClear = () => {
-    dispatch(wcfSlice.actions.resetWcfData());
+    dispatch(wfcSlice.actions.resetWfcData());
     setError(undefined);
   };
 
@@ -86,8 +86,8 @@ export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
     const tileX = Math.floor(x / tileWidth);
     const tileY = Math.floor(y / tileHeight);
 
-    if (wcfData) {
-      const tileId = wcfData[tileY]?.[tileX]?.selectedTile;
+    if (wfcData) {
+      const tileId = wfcData[tileY]?.[tileX]?.selectedTile;
       if (tileId) {
         await show({ tileId });
       }
@@ -109,7 +109,7 @@ export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
 
     ctx.reset();
 
-    if (wcfData == null) {
+    if (wfcData == null) {
       return;
     }
 
@@ -118,10 +118,10 @@ export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
     try {
       cancellationTokenRef.current = new CancellationToken();
       console.log("LETS GENERATE SOME STUFF ----------------------");
-      console.log("Starting from wcfData", wcfData);
+      console.log("Starting from wfcData", wfcData);
       const r = await processRollbackAndRenderAsync(
         ctx,
-        structuredClone(wcfData),
+        structuredClone(wfcData),
         ruleSet,
         t,
         tileWidth,
@@ -130,11 +130,11 @@ export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
         0,
         cancellationTokenRef.current,
       );
-      console.log("Storing wcfData", wcfData);
+      console.log("Storing wfcData", wfcData);
       if (r.type === "error") {
         setError(r.message);
       }
-      dispatch(wcfSlice.actions.setWcfData({ wcfData: r.wcfData }));
+      dispatch(wfcSlice.actions.setWfcData({ wfcData: r.wfcData }));
     } catch (e) {
       console.error(e);
     } finally {
@@ -144,7 +144,7 @@ export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
 
   useEffect(() => {
     (async () => {
-      if (!wcfData) {
+      if (!wfcData) {
         return;
       }
       const canvas = canvasRef.current;
@@ -156,9 +156,9 @@ export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
 
       const t = await tileAtlasStateToImageElements(tiles);
 
-      renderWcfData(ctx, wcfData, t, tileWidth, tileHeight);
+      renderWfcData(ctx, wfcData, t, tileWidth, tileHeight);
     })();
-  }, [tileHeight, tileWidth, tiles, wcfData]);
+  }, [tileHeight, tileWidth, tiles, wfcData]);
 
   return (
     <Column gap={2}>

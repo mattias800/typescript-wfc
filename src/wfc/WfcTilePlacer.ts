@@ -1,48 +1,48 @@
-import { RuleSet, TileId, WcfData } from "./CommonTypes.ts";
+import { RuleSet, TileId, WfcData } from "./CommonTypes.ts";
 
 export const setTile = (
   col: number,
   row: number,
   tile: TileId,
-  wcfData: WcfData,
+  wfcData: WfcData,
   ruleSet: RuleSet,
 ) => {
   console.log("setTile x=" + col + " y=" + row + " tileId=" + tile);
-  wcfData[row][col].selectedTile = tile;
-  updateNeighboursAllowedTiles(col, row, wcfData, ruleSet);
+  wfcData[row][col].selectedTile = tile;
+  updateNeighboursAllowedTiles(col, row, wfcData, ruleSet);
 };
 
 export const updateNeighboursAllowedTiles = (
   col: number,
   row: number,
-  wcfData: WcfData,
+  wfcData: WfcData,
   ruleSet: RuleSet,
 ): void => {
-  const rows = wcfData.length;
-  const cols = wcfData[0].length;
+  const rows = wfcData.length;
+  const cols = wfcData[0].length;
 
   if (row > 0) {
-    const hasChanges = updateAllowedTiles(col, row - 1, wcfData, ruleSet);
+    const hasChanges = updateAllowedTiles(col, row - 1, wfcData, ruleSet);
     if (hasChanges) {
-      updateNeighboursAllowedTiles(col, row - 1, wcfData, ruleSet);
+      updateNeighboursAllowedTiles(col, row - 1, wfcData, ruleSet);
     }
   }
   if (row < rows - 1) {
-    const hasChanges = updateAllowedTiles(col, row + 1, wcfData, ruleSet);
+    const hasChanges = updateAllowedTiles(col, row + 1, wfcData, ruleSet);
     if (hasChanges) {
-      updateNeighboursAllowedTiles(col, row + 1, wcfData, ruleSet);
+      updateNeighboursAllowedTiles(col, row + 1, wfcData, ruleSet);
     }
   }
   if (col > 0) {
-    const hasChanges = updateAllowedTiles(col - 1, row, wcfData, ruleSet);
+    const hasChanges = updateAllowedTiles(col - 1, row, wfcData, ruleSet);
     if (hasChanges) {
-      updateNeighboursAllowedTiles(col - 1, row, wcfData, ruleSet);
+      updateNeighboursAllowedTiles(col - 1, row, wfcData, ruleSet);
     }
   }
   if (col < cols - 1) {
-    const hasChanges = updateAllowedTiles(col + 1, row, wcfData, ruleSet);
+    const hasChanges = updateAllowedTiles(col + 1, row, wfcData, ruleSet);
     if (hasChanges) {
-      updateNeighboursAllowedTiles(col + 1, row, wcfData, ruleSet);
+      updateNeighboursAllowedTiles(col + 1, row, wfcData, ruleSet);
     }
   }
 };
@@ -50,51 +50,51 @@ export const updateNeighboursAllowedTiles = (
 export const updateAllowedTiles = (
   col: number,
   row: number,
-  wcfData: WcfData,
+  wfcData: WfcData,
   ruleSet: RuleSet,
 ): boolean => {
-  if (wcfData[row][col].selectedTile) {
+  if (wfcData[row][col].selectedTile) {
     return false;
   }
-  const prevAllowedTiles = wcfData[row][col].allowedTiles;
-  const nextAllowedTiles = calculateAllowedTiles(col, row, wcfData, ruleSet);
-  wcfData[row][col].allowedTiles = nextAllowedTiles;
+  const prevAllowedTiles = wfcData[row][col].allowedTiles;
+  const nextAllowedTiles = calculateAllowedTiles(col, row, wfcData, ruleSet);
+  wfcData[row][col].allowedTiles = nextAllowedTiles;
   return prevAllowedTiles.length !== nextAllowedTiles.length;
 };
 
 export const calculateAllowedTiles = (
   col: number,
   row: number,
-  wcfData: WcfData,
+  wfcData: WfcData,
   ruleSet: RuleSet,
 ): Array<TileId> => {
-  const rows = wcfData.length;
-  const cols = wcfData[0].length;
+  const rows = wfcData.length;
+  const cols = wfcData[0].length;
 
   const allTiles: Array<TileId> = Object.keys(ruleSet);
 
   const notAllowed: Array<TileId> = [];
 
   if (col > 0) {
-    const tileId = wcfData[row][col - 1].selectedTile;
+    const tileId = wfcData[row][col - 1].selectedTile;
     if (tileId) {
       concatUnique(notAllowed, getNotAllowed(allTiles, ruleSet[tileId]?.right));
     }
   }
   if (col < cols - 1) {
-    const tileId = wcfData[row][col + 1].selectedTile;
+    const tileId = wfcData[row][col + 1].selectedTile;
     if (tileId) {
       concatUnique(notAllowed, getNotAllowed(allTiles, ruleSet[tileId]?.left));
     }
   }
   if (row > 0) {
-    const tileId = wcfData[row - 1][col].selectedTile;
+    const tileId = wfcData[row - 1][col].selectedTile;
     if (tileId) {
       concatUnique(notAllowed, getNotAllowed(allTiles, ruleSet[tileId]?.down));
     }
   }
   if (row < rows - 1) {
-    const tileId = wcfData[row + 1][col].selectedTile;
+    const tileId = wfcData[row + 1][col].selectedTile;
     if (tileId) {
       concatUnique(notAllowed, getNotAllowed(allTiles, ruleSet[tileId]?.up));
     }
@@ -121,41 +121,41 @@ const concatUnique = <T>(list1: Array<T>, list2: Array<T>) => {
 export const hasAnyNeighbourZeroEntropy = (
   col: number,
   row: number,
-  wcfData: WcfData,
+  wfcData: WfcData,
 ): boolean => {
-  const rows = wcfData.length;
-  const cols = wcfData[0].length;
+  const rows = wfcData.length;
+  const cols = wfcData[0].length;
 
   if (row > 0) {
-    if (wcfData[row][col - 1].allowedTiles.length === 0) {
+    if (wfcData[row][col - 1].allowedTiles.length === 0) {
       return true;
     }
   }
   if (row < rows - 1) {
-    if (wcfData[row][col + 1].allowedTiles.length === 0) {
+    if (wfcData[row][col + 1].allowedTiles.length === 0) {
       return true;
     }
   }
   if (col > 0) {
-    if (wcfData[row - 1][col].allowedTiles.length === 0) {
+    if (wfcData[row - 1][col].allowedTiles.length === 0) {
       return true;
     }
   }
   if (col < cols - 1) {
-    if (wcfData[row + 1][col].allowedTiles.length === 0) {
+    if (wfcData[row + 1][col].allowedTiles.length === 0) {
       return true;
     }
   }
   return false;
 };
 
-export const hasAnyTileZeroEntropy = (wcfData: WcfData): boolean => {
-  const rows = wcfData.length;
-  const cols = wcfData[0].length;
+export const hasAnyTileZeroEntropy = (wfcData: WfcData): boolean => {
+  const rows = wfcData.length;
+  const cols = wfcData[0].length;
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      if (wcfData[row][col].allowedTiles.length === 0) {
+      if (wfcData[row][col].allowedTiles.length === 0) {
         return true;
       }
     }

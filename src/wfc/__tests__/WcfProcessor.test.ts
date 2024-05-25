@@ -1,8 +1,8 @@
 import { extractRuleSet } from "../RuleExtractor.ts";
-import { initWcfData } from "../WcfTileFactory.ts";
-import { process } from "../WcfProcessor.ts";
+import { initWfcData } from "../WfcTileFactory.ts";
+import { process } from "../WfcProcessor.ts";
 
-describe("WcfProcessor", () => {
+describe("WfcProcessor", () => {
   describe("replaceSingleAllowedWithSelected", () => {
     describe("with small ruleset", () => {
       const ruleSet = extractRuleSet([
@@ -14,7 +14,7 @@ describe("WcfProcessor", () => {
 
       describe("placing a 4", () => {
         it("sets tile in all places where only single tile is allowed", () => {
-          const d = initWcfData(4, 4, ruleSet);
+          const d = initWfcData(4, 4, ruleSet);
           process(d, ruleSet);
           console.log(d);
         });

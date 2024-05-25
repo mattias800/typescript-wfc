@@ -15,15 +15,15 @@ import {
   TileAtlasImporterModalProps,
   TileAtlasImporterModalResult,
 } from "../tile-atlas-importer/TileAtlasImporterModal.tsx";
-import { wcfSlice } from "./WcfSlice.ts";
+import { wfcSlice } from "./WfcSlice.ts";
 import { tileAtlasSlice } from "../tile-atlas/TileAtlasSlice.ts";
 
-export interface WcfRuleSetPanelProps {}
+export interface WfcRuleSetPanelProps {}
 
-const getWcfState = (state: RootState) => state.wcf;
+const getWfcState = (state: RootState) => state.wfc;
 
-export const WcfRuleSetPanel: React.FC<WcfRuleSetPanelProps> = () => {
-  const { ruleSet } = useAppSelector(getWcfState);
+export const WfcRuleSetPanel: React.FC<WfcRuleSetPanelProps> = () => {
+  const { ruleSet } = useAppSelector(getWfcState);
 
   const [numDeletedTiles, setNumDeletedTiles] = useState<number | undefined>();
 
@@ -54,8 +54,8 @@ export const WcfRuleSetPanel: React.FC<WcfRuleSetPanelProps> = () => {
 
         setNumDeletedTiles(result.numDeletedTiles);
 
-        dispatch(wcfSlice.actions.setRuleSet({ ruleSet }));
-        dispatch(wcfSlice.actions.resetWcfData());
+        dispatch(wfcSlice.actions.setRuleSet({ ruleSet }));
+        dispatch(wfcSlice.actions.resetWfcData());
       }
     } catch (e) {
       /* empty */

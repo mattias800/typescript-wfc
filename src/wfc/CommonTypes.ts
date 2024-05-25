@@ -17,9 +17,9 @@ export interface AllowedNeighbours {
   down: Array<TileId>;
 }
 
-export interface WcfTile {
+export interface WfcTile {
   selectedTile: TileId | undefined;
   allowedTiles: Array<TileId>;
 }
 
-export type WcfData = Array<Array<WcfTile>>;
+export type WfcData = Array<Array<WfcTile>>;

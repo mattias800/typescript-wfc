@@ -1,41 +1,41 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
-import { RuleSet, TileId, WcfData } from "../../wfc/CommonTypes.ts";
+import { RuleSet, TileId, WfcData } from "../../wfc/CommonTypes.ts";
 import {
   deleteTileFromRuleSet,
   replaceTileInRuleSet,
 } from "../../wfc/RuleSetModifier.ts";
-import { initWcfData } from "../../wfc/WcfTileFactory.ts"; // Define a type for the slice state
+import { initWfcData } from "../../wfc/WfcTileFactory.ts"; // Define a type for the slice state
 
-interface WcfState {
+interface WfcState {
   ruleSet: RuleSet | undefined;
-  wcfData: WcfData | undefined;
+  wfcData: WfcData | undefined;
   cols: number;
   rows: number;
 }
 
-const initialState: WcfState = {
+const initialState: WfcState = {
   ruleSet: undefined,
-  wcfData: undefined,
+  wfcData: undefined,
   cols: 80,
   rows: 45,
 };
 
-export const wcfSlice = createSlice({
-  name: "wcf",
+export const wfcSlice = createSlice({
+  name: "wfc",
   initialState,
   reducers: {
     reset: (state) => {
       state.ruleSet = undefined;
     },
-    resetWcfData: (state) => {
+    resetWfcData: (state) => {
       if (state.ruleSet == null) {
         return;
       }
-      state.wcfData = initWcfData(state.cols, state.rows, state.ruleSet);
+      state.wfcData = initWfcData(state.cols, state.rows, state.ruleSet);
     },
-    setWcfData: (state, action: PayloadAction<{ wcfData: WcfData }>) => {
-      state.wcfData = action.payload.wcfData;
+    setWfcData: (state, action: PayloadAction<{ wfcData: WfcData }>) => {
+      state.wfcData = action.payload.wfcData;
     },
     setRuleSet: (state, action: PayloadAction<{ ruleSet: RuleSet }>) => {
       state.ruleSet = action.payload.ruleSet;

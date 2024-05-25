@@ -1,6 +1,6 @@
 import { extractRuleSet } from "../RuleExtractor.ts";
 
-describe("Wcf", () => {
+describe("Wfc", () => {
   describe("extractRuleSet", () => {
     describe("2x2 example", () => {
       const r = extractRuleSet([

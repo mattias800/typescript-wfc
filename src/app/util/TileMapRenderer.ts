@@ -1,17 +1,17 @@
-import { TileId, WcfData } from "../../wfc/CommonTypes.ts";
-import { mapWcfDataToSourceMap } from "../../wfc/SourceMapMapper.ts";
+import { TileId, WfcData } from "../../wfc/CommonTypes.ts";
+import { mapWfcDataToSourceMap } from "../../wfc/SourceMapMapper.ts";
 
-export const renderWcfData = (
+export const renderWfcData = (
   ctx: CanvasRenderingContext2D,
-  wcfData: WcfData,
+  wfcData: WfcData,
   tileImages: Record<TileId, HTMLImageElement>,
   tileWidth: number,
   tileHeight: number,
 ) => {
   ctx.reset();
-  const tileMap = mapWcfDataToSourceMap(wcfData);
+  const tileMap = mapWfcDataToSourceMap(wfcData);
   renderTileMap(ctx, tileMap, tileImages, tileWidth, tileHeight);
-  renderAllowedNeighbours(ctx, wcfData, tileWidth, tileHeight);
+  renderAllowedNeighbours(ctx, wfcData, tileWidth, tileHeight);
 };
 
 export const renderTileMap = (
@@ -33,13 +33,13 @@ export const renderTileMap = (
 
 export const renderAllowedNeighbours = (
   ctx: CanvasRenderingContext2D,
-  wcfData: WcfData,
+  wfcData: WfcData,
   tileWidth: number,
   tileHeight: number,
 ) => {
-  for (let y = 0; y < wcfData.length; y++) {
-    for (let x = 0; x < wcfData[y].length; x++) {
-      const tile = wcfData[y][x];
+  for (let y = 0; y < wfcData.length; y++) {
+    for (let x = 0; x < wfcData[y].length; x++) {
+      const tile = wfcData[y][x];
       if (!tile.selectedTile) {
         renderNumber(
           ctx,

@@ -1,8 +1,8 @@
 import { extractRuleSet } from "../RuleExtractor.ts";
-import { initWcfData } from "../WcfTileFactory.ts";
-import { calculateAllowedTiles } from "../WcfTilePlacer.ts";
+import { initWfcData } from "../WfcTileFactory.ts";
+import { calculateAllowedTiles } from "../WfcTilePlacer.ts";
 
-describe("WcfTilePlacer", () => {
+describe("WfcTilePlacer", () => {
   describe("calculateAllowedTiles", () => {
     describe("with small ruleset", () => {
       const ruleSet = extractRuleSet([
@@ -14,7 +14,7 @@ describe("WcfTilePlacer", () => {
 
       describe("placing a 4", () => {
         it("updates neighbouring tiles", () => {
-          const d = initWcfData(4, 4, ruleSet);
+          const d = initWfcData(4, 4, ruleSet);
           d[0][0].selectedTile = "4";
 
           expect(calculateAllowedTiles(1, 0, d, ruleSet)).toEqual(["1"]);

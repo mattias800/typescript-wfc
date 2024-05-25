@@ -2,17 +2,17 @@ import {
   Coordinate,
   RuleSet,
   TileId,
-  WcfData,
-  WcfTile,
+  WfcData,
+  WfcTile,
 } from "./CommonTypes.ts";
-import { setTile } from "./WcfTilePlacer.ts";
+import { setTile } from "./WfcTilePlacer.ts";
 import { getRandomItem } from "../util/ListUtils.ts";
 
-export const process = (wcfData: WcfData, ruleSet: RuleSet): WcfData => {
+export const process = (wfcData: WfcData, ruleSet: RuleSet): WfcData => {
   for (let i = 0; i < 10000; i++) {
     let workDoneInPass = false;
     for (let j = 0; j < 100; j++) {
-      const workDone = replaceSingleAllowedWithSelected(wcfData, ruleSet);
+      const workDone = replaceSingleAllowedWithSelected(wfcData, ruleSet);
       if (workDone) {
         workDoneInPass = true;
       }
@@ -21,16 +21,16 @@ export const process = (wcfData: WcfData, ruleSet: RuleSet): WcfData => {
       }
     }
 
-    const { coordinates, entropy } = findTilesWithLowestEntropy(wcfData);
+    const { coordinates, entropy } = findTilesWithLowestEntropy(wfcData);
     if (entropy < 2) {
       throw new Error("Found entropy below 2.");
     }
     const c = getRandomItem(coordinates);
 
     if (c) {
-      const tile = wcfData[c.row][c.col];
+      const tile = wfcData[c.row][c.col];
       const randomAllowedTile = getRandomAllowedTile(tile);
-      setTile(c.col, c.row, randomAllowedTile, wcfData, ruleSet);
+      setTile(c.col, c.row, randomAllowedTile, wfcData, ruleSet);
 
       workDoneInPass = true;
     }
@@ -41,23 +41,23 @@ export const process = (wcfData: WcfData, ruleSet: RuleSet): WcfData => {
     }
   }
 
-  return wcfData;
+  return wfcData;
 };
 
 export const replaceSingleAllowedWithSelected = (
-  wcfData: WcfData,
+  wfcData: WfcData,
   ruleSet: RuleSet,
 ): boolean => {
   let anyTilesUpdated = false;
-  const rows = wcfData.length;
-  const cols = wcfData[0].length;
+  const rows = wfcData.length;
+  const cols = wfcData[0].length;
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       if (
-        !wcfData[row][col].selectedTile &&
-        wcfData[row][col].allowedTiles.length === 1
+        !wfcData[row][col].selectedTile &&
+        wfcData[row][col].allowedTiles.length === 1
       ) {
-        setTile(col, row, wcfData[row][col].allowedTiles[0], wcfData, ruleSet);
+        setTile(col, row, wfcData[row][col].allowedTiles[0], wfcData, ruleSet);
         anyTilesUpdated = true;
       }
     }
@@ -66,17 +66,17 @@ export const replaceSingleAllowedWithSelected = (
 };
 
 export const findTilesWithLowestEntropy = (
-  wcfData: WcfData,
+  wfcData: WfcData,
 ): { coordinates: Array<Coordinate>; entropy: number } => {
-  const rows = wcfData.length;
-  const cols = wcfData[0].length;
+  const rows = wfcData.length;
+  const cols = wfcData[0].length;
 
   let currentLowestEntropy = Infinity;
   let coordinatesWithLowestEntropy: Array<Coordinate> = [];
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      const tile = wcfData[row][col];
+      const tile = wfcData[row][col];
       if (tile.selectedTile) {
         continue;
       }
@@ -105,7 +105,7 @@ export const findTilesWithLowestEntropy = (
   };
 };
 
-export const getRandomAllowedTile = (tile: WcfTile): TileId => {
+export const getRandomAllowedTile = (tile: WfcTile): TileId => {
   if (tile.selectedTile) {
     throw new Error(
       "Trying to get random allowed tile, but tile has already been selected.",
@@ -129,25 +129,16 @@ export const shuffleArray = <T>(array: Array<T>): Array<T> => {
   return shuffledArray;
 };
 
-export const allTilesHaveBeenSelected = (wcfData: WcfData): boolean => {
-  const rows = wcfData.length;
-  const cols = wcfData[0].length;
+export const allTilesHaveBeenSelected = (wfcData: WfcData): boolean => {
+  const rows = wfcData.length;
+  const cols = wfcData[0].length;
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      if (!wcfData[row][col].selectedTile) {
+      if (!wfcData[row][col].selectedTile) {
         return false;
       }
     }
   }
   return true;
-};
-
-export const cloneWcfData = (wcfData: WcfData): WcfData => {
-  return wcfData.map((col) => [
-    ...col.map((r) => ({
-      selectedTile: r.selectedTile,
-      allowedTiles: [...r.allowedTiles],
-    })),
-  ]);
 };

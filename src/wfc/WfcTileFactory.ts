@@ -1,14 +1,14 @@
-import { RuleSet, WcfData, WcfTile } from "./CommonTypes.ts";
+import { RuleSet, WfcData, WfcTile } from "./CommonTypes.ts";
 
-export const initWcfData = (
+export const initWfcData = (
   cols: number,
   rows: number,
   ruleSet: RuleSet,
-): WcfData => {
+): WfcData => {
   const all = Object.keys(ruleSet);
-  const l: WcfData = [];
+  const l: WfcData = [];
   for (let row = 0; row < rows; row++) {
-    const rowData: Array<WcfTile> = [];
+    const rowData: Array<WfcTile> = [];
     for (let col = 0; col < cols; col++) {
       rowData.push({
         selectedTile: undefined,

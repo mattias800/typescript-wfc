@@ -1,19 +1,19 @@
-import { RuleSet, TileId, WcfData } from "../../wfc/CommonTypes.ts";
-import { setTile } from "../../wfc/WcfTilePlacer.ts";
+import { RuleSet, TileId, WfcData } from "../../wfc/CommonTypes.ts";
+import { setTile } from "../../wfc/WfcTilePlacer.ts";
 import {
   findTilesWithLowestEntropy,
   replaceSingleAllowedWithSelected,
-} from "../../wfc/WcfProcessor.ts";
-import { mapWcfDataToSourceMap } from "../../wfc/SourceMapMapper.ts";
-import { renderTileMap, renderWcfData } from "../util/TileMapRenderer.ts";
+} from "../../wfc/WfcProcessor.ts";
+import { mapWfcDataToSourceMap } from "../../wfc/SourceMapMapper.ts";
+import { renderTileMap, renderWfcData } from "../util/TileMapRenderer.ts";
 import { asyncDelay } from "../../util/AsyncDelay.ts";
 import { CancellationToken } from "../util/CancellationToken.ts";
 import { getRandomItem } from "../../util/ListUtils.ts";
-import { ProcessResult } from "./AsyncWcfRollbackProcessor.ts";
+import { ProcessResult } from "./AsyncWfcRollbackProcessor.ts";
 
 export const processAndRenderAsync = async (
   ctx: CanvasRenderingContext2D,
-  wcfData: WcfData,
+  wfcData: WfcData,
   ruleSet: RuleSet,
   atlas: Record<TileId, HTMLImageElement>,
   tileWidth: number,
@@ -25,10 +25,10 @@ export const processAndRenderAsync = async (
 
   if (cancellationToken.isCancelled()) {
     console.log("Cancelled by user.");
-    renderWcfData(ctx, wcfData, atlas, tileWidth, tileHeight);
+    renderWfcData(ctx, wfcData, atlas, tileWidth, tileHeight);
     return {
       type: "cancelled",
-      wcfData,
+      wfcData: wfcData,
     };
   }
 
@@ -37,16 +37,16 @@ export const processAndRenderAsync = async (
       console.log("Collapsing tiles");
       let workDone = false;
       try {
-        workDone = replaceSingleAllowedWithSelected(wcfData, ruleSet);
+        workDone = replaceSingleAllowedWithSelected(wfcData, ruleSet);
       } catch (e) {
-        renderWcfData(ctx, wcfData, atlas, tileWidth, tileHeight);
+        renderWfcData(ctx, wfcData, atlas, tileWidth, tileHeight);
         return {
           type: "error",
           message: "Failed then collapsing tiles.",
-          wcfData,
+          wfcData: wfcData,
         };
       }
-      const tileMap = mapWcfDataToSourceMap(wcfData);
+      const tileMap = mapWfcDataToSourceMap(wfcData);
       ctx.reset();
       renderTileMap(ctx, tileMap, atlas, tileWidth, tileHeight);
       if (!workDone) {
@@ -56,28 +56,28 @@ export const processAndRenderAsync = async (
       console.log("Collapse work done! Trying again");
     }
 
-    renderWcfData(ctx, wcfData, atlas, tileWidth, tileHeight);
+    renderWfcData(ctx, wfcData, atlas, tileWidth, tileHeight);
 
-    const { coordinates, entropy } = findTilesWithLowestEntropy(wcfData);
+    const { coordinates, entropy } = findTilesWithLowestEntropy(wfcData);
 
     if (entropy < 2) {
       return {
         type: "error",
         message: "Found entropy below 2.",
-        wcfData,
+        wfcData: wfcData,
       };
     }
 
     const c = getRandomItem(coordinates);
 
     await asyncDelay(10);
-    const tile = wcfData[c.row][c.col];
+    const tile = wfcData[c.row][c.col];
 
     if (tile.allowedTiles.length === 0) {
       return {
         type: "error",
         message: "Tried to place tile, but tile has no allowed possibilities.",
-        wcfData,
+        wfcData: wfcData,
       };
     }
 
@@ -87,21 +87,21 @@ export const processAndRenderAsync = async (
 
     try {
       console.log("Draw tile id=" + allowedTile);
-      setTile(c.col, c.row, allowedTile, wcfData, ruleSet);
-      renderWcfData(ctx, wcfData, atlas, tileWidth, tileHeight);
+      setTile(c.col, c.row, allowedTile, wfcData, ruleSet);
+      renderWfcData(ctx, wfcData, atlas, tileWidth, tileHeight);
     } catch (e) {
-      renderWcfData(ctx, wcfData, atlas, tileWidth, tileHeight);
+      renderWfcData(ctx, wfcData, atlas, tileWidth, tileHeight);
       if (e instanceof Error) {
         return {
           type: "error",
           message: e.message,
-          wcfData,
+          wfcData: wfcData,
         };
       } else {
         return {
           type: "error",
           message: "Unknown error when setting tile.",
-          wcfData,
+          wfcData: wfcData,
         };
       }
     }
@@ -111,6 +111,6 @@ export const processAndRenderAsync = async (
     type: "error",
     message:
       "All possible placements of lowest entropy tiles caused unresolvable tiles.",
-    wcfData,
+    wfcData: wfcData,
   };
 };

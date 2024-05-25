@@ -11,7 +11,7 @@ import { TileAtlasImage } from "../common/components/TileAtlasImage.tsx";
 import { HorizontalNeighbourList } from "./HorizontalNeighbourList.tsx";
 import { Row, Text } from "@stenajs-webui/core";
 import { SecondaryButton } from "@stenajs-webui/elements";
-import { wcfSlice } from "../wcf-ruleset/WcfSlice.ts";
+import { wfcSlice } from "../wfc-ruleset/WfcSlice.ts";
 import { TileId } from "../../wfc/CommonTypes.ts";
 import { RuleSelectModal, RuleSelectModalProps } from "./RuleSelectModal.tsx";
 
@@ -28,12 +28,12 @@ export const RuleDetailsModal: React.FC<RuleDetailsModalProps> = ({
     RuleSelectModal,
   );
   const { resolve } = useDialogPromise();
-  const { ruleSet } = useAppSelector((state) => state.wcf);
+  const { ruleSet } = useAppSelector((state) => state.wfc);
   const allowedNeighbours = ruleSet?.[tileId];
 
   const onClickDelete = (tileId: TileId) => {
     resolve();
-    dispatch(wcfSlice.actions.deleteTileFromRules({ tileId }));
+    dispatch(wfcSlice.actions.deleteTileFromRules({ tileId }));
   };
 
   const onClickReplace = async (tileId: TileId) => {
@@ -42,7 +42,7 @@ export const RuleDetailsModal: React.FC<RuleDetailsModalProps> = ({
       if (selectedTileId) {
         resolve();
         dispatch(
-          wcfSlice.actions.replaceTileWithOtherTile({
+          wfcSlice.actions.replaceTileWithOtherTile({
             tileIdToDelete: tileId,
             tileIdToReplaceIt: selectedTileId,
           }),

@@ -1,8 +1,8 @@
 import { extractRuleSet } from "../RuleExtractor.ts";
-import { initWcfData } from "../WcfTileFactory.ts";
+import { initWfcData } from "../WfcTileFactory.ts";
 
-describe("WcfTileFactory", () => {
-  describe("initWcfData", () => {
+describe("WfcTileFactory", () => {
+  describe("initWfcData", () => {
     describe("with simple result set", () => {
       const r = extractRuleSet([
         ["4", "1", "1", "1"],
@@ -11,7 +11,7 @@ describe("WcfTileFactory", () => {
         ["1", "3", "3", "3"],
       ]);
 
-      const t = initWcfData(2, 3, r);
+      const t = initWfcData(2, 3, r);
 
       it("is correct size", () => {
         expect(t.length).toBe(3);

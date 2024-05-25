@@ -1,16 +1,16 @@
 import React from "react";
 import "./App.css";
 import { PageLayout } from "./PageLayout.tsx";
-import { WcfRuleSetPanel } from "./app/wcf-ruleset/WcfRuleSetPanel.tsx";
-import { WcfCanvasPanel } from "./app/wcf-canvas/WcfCanvasPanel.tsx";
+import { WfcRuleSetPanel } from "./app/wfc-ruleset/WfcRuleSetPanel.tsx";
+import { WfcCanvasPanel } from "./app/wfc-canvas/WfcCanvasPanel.tsx";
 
 export const App: React.FC = () => {
   return (
     <PageLayout
-      leftContent={<WcfRuleSetPanel />}
+      leftContent={<WfcRuleSetPanel />}
       /* rightContent={<TileAtlasList />} */
     >
-      <WcfCanvasPanel />
+      <WfcCanvasPanel />
     </PageLayout>
   );
 };

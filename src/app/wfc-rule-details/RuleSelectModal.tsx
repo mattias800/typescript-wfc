@@ -15,7 +15,7 @@ export const RuleSelectModal: React.FC<RuleSelectModalProps> = () => {
 
   const [selectedId, setSelectedId] = useState<string | undefined>();
 
-  const { ruleSet } = useAppSelector((state) => state.wcf);
+  const { ruleSet } = useAppSelector((state) => state.wfc);
 
   const tileIds =
     ruleSet == null ? [] : (Object.keys(ruleSet) as Array<TileId>);
