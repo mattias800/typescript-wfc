@@ -35,7 +35,7 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
   const wfcData = useAppSelector(getWfcData);
   const dispatch = useAppDispatch();
 
-  const [allowZeroEntropyTiles, setAllowZeroEntropyTiles] = useState(true);
+  const [backtrackingEnabled, setBacktrackingEnabled] = useState(true);
   const [error, setError] = useState<string | undefined>(undefined);
 
   const [dialog, { show }] = useModalDialog(RuleDetailsModal);
@@ -102,7 +102,7 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!ctx) {
-      console.log("Could not get context.");
+      setError("Could not get context.");
       return;
     }
     const t = await tileAtlasStateToImageElements(tiles);
@@ -117,8 +117,6 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
     setLoading(true);
     try {
       cancellationTokenRef.current = new CancellationToken();
-      console.log("LETS GENERATE SOME STUFF ----------------------");
-      console.log("Starting from wfcData", wfcData);
       const r = await processRollbackAndRenderAsync(
         ctx,
         structuredClone(wfcData),
@@ -126,17 +124,18 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
         t,
         tileWidth,
         tileHeight,
-        allowZeroEntropyTiles,
+        backtrackingEnabled,
         0,
         cancellationTokenRef.current,
       );
-      console.log("Storing wfcData", wfcData);
       if (r.type === "error") {
         setError(r.message);
       }
       dispatch(wfcSlice.actions.setWfcData({ wfcData: r.wfcData }));
     } catch (e) {
-      console.error(e);
+      if (e instanceof Error) {
+        setError(e.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -150,7 +149,7 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
       const canvas = canvasRef.current;
       const ctx = canvas?.getContext("2d");
       if (!ctx) {
-        console.log("Could not get context.");
+        setError("Could not get context.");
         return;
       }
 
@@ -176,9 +175,9 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
           <SecondaryButton label={"Clear"} onClick={onClickClear} />
         )}
         <SwitchWithLabel
-          label={"Allow zero entropy tiles"}
-          value={allowZeroEntropyTiles}
-          onValueChange={setAllowZeroEntropyTiles}
+          label={"Enable backtracking"}
+          value={backtrackingEnabled}
+          onValueChange={setBacktrackingEnabled}
         />
         {mouseTileCoordinate && (
           <Text>

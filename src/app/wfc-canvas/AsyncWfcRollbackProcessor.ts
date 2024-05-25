@@ -38,14 +38,11 @@ export const processRollbackAndRenderAsync = async (
   atlas: Record<TileId, HTMLImageElement>,
   tileWidth: number,
   tileHeight: number,
-  allowZeroEntropyTiles: boolean,
+  backtrackingEnabled: boolean,
   depth: number,
   cancellationToken: CancellationToken,
 ): Promise<ProcessResult> => {
-  console.log("processRollbackAndRenderAsync", depth, tileWidth, tileHeight);
-
   if (cancellationToken.isCancelled()) {
-    console.log("Cancelled by user.");
     renderWfcData(ctx, wfcData, atlas, tileWidth, tileHeight);
     return {
       type: "cancelled",
@@ -53,7 +50,7 @@ export const processRollbackAndRenderAsync = async (
     };
   }
 
-  if (!allowZeroEntropyTiles && hasAnyTileZeroEntropy(wfcData)) {
+  if (backtrackingEnabled && hasAnyTileZeroEntropy(wfcData)) {
     return {
       type: "error",
       message: "Found zero entropy.",
@@ -92,14 +89,9 @@ export const processRollbackAndRenderAsync = async (
     };
   }
 
-  coordinates.forEach((c) => {
-    console.log(wfcData[c.row][c.col]);
-  });
-
   if (coordinates.length === 0) {
     // There are no more tiles that can be selected.
     if (allTilesHaveBeenSelected(wfcData)) {
-      console.log("allTilesHaveBeenSelected");
       return {
         type: "success",
         wfcData: wfcData,
@@ -116,7 +108,6 @@ export const processRollbackAndRenderAsync = async (
   const shuffledCoordinates = shuffleArray(coordinates);
 
   for (const c of shuffledCoordinates) {
-    console.log("Random selecting x=" + c.row + " y=" + c.col);
     const tile = wfcData[c.row][c.col];
 
     if (tile.allowedTiles.length === 0) {
@@ -129,12 +120,9 @@ export const processRollbackAndRenderAsync = async (
 
     const allowedTiles = shuffleArray(tile.allowedTiles);
 
-    console.log("Trying allowed tiles", allowedTiles);
     for (const allowedTile of allowedTiles) {
-      console.log("allowedTile", allowedTile);
       const nextWfcData = structuredClone(wfcData);
 
-      console.log("Draw tile id=" + allowedTile);
       setTile(c.col, c.row, allowedTile, nextWfcData, ruleSet);
       renderWfcData(ctx, nextWfcData, atlas, tileWidth, tileHeight);
 
@@ -145,7 +133,7 @@ export const processRollbackAndRenderAsync = async (
         atlas,
         tileWidth,
         tileHeight,
-        allowZeroEntropyTiles,
+        backtrackingEnabled,
         depth + 1,
         cancellationToken,
       );

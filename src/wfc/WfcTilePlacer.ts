@@ -7,7 +7,6 @@ export const setTile = (
   wfcData: WfcData,
   ruleSet: RuleSet,
 ) => {
-  console.log("setTile x=" + col + " y=" + row + " tileId=" + tile);
   wfcData[row][col].selectedTile = tile;
   updateNeighboursAllowedTiles(col, row, wfcData, ruleSet);
 };

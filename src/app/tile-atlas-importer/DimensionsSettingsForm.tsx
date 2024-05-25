@@ -21,7 +21,6 @@ export const DimensionsSettingsForm: React.FC<DimensionsSettingsFormProps> = ({
         <input
           type={"range"}
           value={tileSize}
-          step={8}
           min={8}
           max={64}
           onChange={(ev) => {
