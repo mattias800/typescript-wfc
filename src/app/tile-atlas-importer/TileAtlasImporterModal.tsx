@@ -12,6 +12,7 @@ export interface TileAtlasImporterModalResult {
   tiles: Array<ImageData>;
   tilesRecord: Record<TileId, string>;
   tileMap: Array<Array<number>>;
+  numDeletedTiles: number | undefined;
 }
 
 export const TileAtlasImporterModal: React.FC<

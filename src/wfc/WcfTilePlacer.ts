@@ -117,3 +117,48 @@ const concatUnique = <T>(list1: Array<T>, list2: Array<T>) => {
     }
   });
 };
+
+export const hasAnyNeighbourZeroEntropy = (
+  col: number,
+  row: number,
+  wcfData: WcfData,
+): boolean => {
+  const rows = wcfData.length;
+  const cols = wcfData[0].length;
+
+  if (row > 0) {
+    if (wcfData[row][col - 1].allowedTiles.length === 0) {
+      return true;
+    }
+  }
+  if (row < rows - 1) {
+    if (wcfData[row][col + 1].allowedTiles.length === 0) {
+      return true;
+    }
+  }
+  if (col > 0) {
+    if (wcfData[row - 1][col].allowedTiles.length === 0) {
+      return true;
+    }
+  }
+  if (col < cols - 1) {
+    if (wcfData[row + 1][col].allowedTiles.length === 0) {
+      return true;
+    }
+  }
+  return false;
+};
+
+export const hasAnyTileZeroEntropy = (wcfData: WcfData): boolean => {
+  const rows = wcfData.length;
+  const cols = wcfData[0].length;
+
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      if (wcfData[row][col].allowedTiles.length === 0) {
+        return true;
+      }
+    }
+  }
+  return false;
+};

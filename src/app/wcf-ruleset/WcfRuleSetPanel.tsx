@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useState } from "react";
 import { Text } from "@stenajs-webui/core";
 import {
   Card,
@@ -23,6 +24,8 @@ const getWcfState = (state: RootState) => state.wcf;
 
 export const WcfRuleSetPanel: React.FC<WcfRuleSetPanelProps> = () => {
   const { ruleSet } = useAppSelector(getWcfState);
+
+  const [numDeletedTiles, setNumDeletedTiles] = useState<number | undefined>();
 
   const dispatch = useAppDispatch();
   const [dialog, { show }] = useModalDialog<
@@ -49,6 +52,8 @@ export const WcfRuleSetPanel: React.FC<WcfRuleSetPanelProps> = () => {
           }),
         );
 
+        setNumDeletedTiles(result.numDeletedTiles);
+
         dispatch(wcfSlice.actions.setRuleSet({ ruleSet }));
         dispatch(wcfSlice.actions.resetWcfData());
       }
@@ -67,7 +72,12 @@ export const WcfRuleSetPanel: React.FC<WcfRuleSetPanelProps> = () => {
         }
       />
       <CardBody gap={2}>
-        {ruleSet && <Text>{Object.keys(ruleSet).length} tiles</Text>}
+        {ruleSet && (
+          <Text>
+            {Object.keys(ruleSet).length} tiles{" "}
+            {numDeletedTiles != null ? "(" + numDeletedTiles + " deleted)" : ""}
+          </Text>
+        )}
         {ruleSet ? (
           <RuleSetPanel ruleSet={ruleSet} />
         ) : (

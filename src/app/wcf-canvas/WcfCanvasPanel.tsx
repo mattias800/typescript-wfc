@@ -13,6 +13,7 @@ import { processRollbackAndRenderAsync } from "./AsyncWcfRollbackProcessor.ts";
 import { wcfSlice } from "../wcf-ruleset/WcfSlice.ts";
 import { renderWcfData } from "../util/TileMapRenderer.ts";
 import { ErrorPanel } from "./ErrorPanel.tsx";
+import { SwitchWithLabel } from "@stenajs-webui/forms";
 
 export interface WcfCanvasPanelProps {}
 
@@ -34,6 +35,7 @@ export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
   const wcfData = useAppSelector(getWcfData);
   const dispatch = useAppDispatch();
 
+  const [allowZeroEntropyTiles, setAllowZeroEntropyTiles] = useState(true);
   const [error, setError] = useState<string | undefined>(undefined);
 
   const [dialog, { show }] = useModalDialog(RuleDetailsModal);
@@ -124,6 +126,7 @@ export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
         t,
         tileWidth,
         tileHeight,
+        allowZeroEntropyTiles,
         0,
         cancellationTokenRef.current,
       );
@@ -172,6 +175,11 @@ export const WcfCanvasPanel: React.FC<WcfCanvasPanelProps> = () => {
         ) : (
           <SecondaryButton label={"Clear"} onClick={onClickClear} />
         )}
+        <SwitchWithLabel
+          label={"Allow zero entropy tiles"}
+          value={allowZeroEntropyTiles}
+          onValueChange={setAllowZeroEntropyTiles}
+        />
         {mouseTileCoordinate && (
           <Text>
             {mouseTileCoordinate.mouseTileX}:{mouseTileCoordinate.mouseTileY}

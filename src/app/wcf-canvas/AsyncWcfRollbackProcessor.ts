@@ -1,5 +1,5 @@
 import { RuleSet, TileId, WcfData } from "../../wfc/CommonTypes.ts";
-import { setTile } from "../../wfc/WcfTilePlacer.ts";
+import { hasAnyTileZeroEntropy, setTile } from "../../wfc/WcfTilePlacer.ts";
 import {
   allTilesHaveBeenSelected,
   findTilesWithLowestEntropy,
@@ -38,6 +38,7 @@ export const processRollbackAndRenderAsync = async (
   atlas: Record<TileId, HTMLImageElement>,
   tileWidth: number,
   tileHeight: number,
+  allowZeroEntropyTiles: boolean,
   depth: number,
   cancellationToken: CancellationToken,
 ): Promise<ProcessResult> => {
@@ -48,6 +49,14 @@ export const processRollbackAndRenderAsync = async (
     renderWcfData(ctx, wcfData, atlas, tileWidth, tileHeight);
     return {
       type: "cancelled",
+      wcfData,
+    };
+  }
+
+  if (!allowZeroEntropyTiles && hasAnyTileZeroEntropy(wcfData)) {
+    return {
+      type: "error",
+      message: "Found zero entropy.",
       wcfData,
     };
   }
@@ -70,6 +79,8 @@ export const processRollbackAndRenderAsync = async (
       break;
     }
   }
+
+  await asyncDelay(1);
 
   const { coordinates, entropy } = findTilesWithLowestEntropy(wcfData);
 
@@ -106,41 +117,42 @@ export const processRollbackAndRenderAsync = async (
 
   for (const c of shuffledCoordinates) {
     console.log("Random selecting x=" + c.row + " y=" + c.col);
-    await asyncDelay(10);
     const tile = wcfData[c.row][c.col];
 
     if (tile.allowedTiles.length === 0) {
-      continue;
+      return {
+        type: "error",
+        message: "Found tile with entropy 0.",
+        wcfData,
+      };
     }
 
-    const allowedTiles = shuffleArray([...tile.allowedTiles]);
+    const allowedTiles = shuffleArray(tile.allowedTiles);
 
     console.log("Trying allowed tiles", allowedTiles);
     for (const allowedTile of allowedTiles) {
       console.log("allowedTile", allowedTile);
       const nextWcfData = structuredClone(wcfData);
-      try {
-        console.log("Draw tile id=" + allowedTile);
-        setTile(c.col, c.row, allowedTile, nextWcfData, ruleSet);
-        renderWcfData(ctx, wcfData, atlas, tileWidth, tileHeight);
-        const result = await processRollbackAndRenderAsync(
-          ctx,
-          nextWcfData,
-          ruleSet,
-          atlas,
-          tileWidth,
-          tileHeight,
-          depth + 1,
-          cancellationToken,
-        );
-        if (result.type === "success" || result.type === "cancelled") {
-          return result;
-        }
-      } catch (e) {
-        renderWcfData(ctx, wcfData, atlas, tileWidth, tileHeight);
-        if (e instanceof Error) {
-          console.log("Continue after unresolved: " + e.message);
-        }
+
+      console.log("Draw tile id=" + allowedTile);
+      setTile(c.col, c.row, allowedTile, nextWcfData, ruleSet);
+      renderWcfData(ctx, nextWcfData, atlas, tileWidth, tileHeight);
+
+      const result = await processRollbackAndRenderAsync(
+        ctx,
+        nextWcfData,
+        ruleSet,
+        atlas,
+        tileWidth,
+        tileHeight,
+        allowZeroEntropyTiles,
+        depth + 1,
+        cancellationToken,
+      );
+      if (result.type === "success" || result.type === "cancelled") {
+        return result;
+      } else {
+        // It failed, try the next one
       }
     }
   }

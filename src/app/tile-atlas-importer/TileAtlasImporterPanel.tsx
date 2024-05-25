@@ -84,16 +84,14 @@ export const TileAtlasImporterPanel: React.FC<
       const numDeletedTiles =
         Object.keys(importedRuleSet).length - Object.keys(ruleSet).length;
 
-      if (numDeletedTiles > 0) {
-        alert(
-          "Deleted " + numDeletedTiles + " tiles that was missing neighbours.",
-        );
-      }
       resolve({
         ...r,
         ruleSet,
         tileSizeX: settingsX.tileSize,
         tileSizeY: settingsY.tileSize,
+        numDeletedTiles: deleteTilesWithMissingNeighbour
+          ? numDeletedTiles
+          : undefined,
       });
     }
   }, [deleteTilesWithMissingNeighbour, resolve, settingsX, settingsY]);
