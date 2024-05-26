@@ -3,13 +3,16 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://mattias800.github.io/typescript-wfc/",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest",
-    "prettier": "prettier --no-config --write \"./src/**/*.{ts,tsx,css,graphql}\""
+    "prettier": "prettier --no-config --write \"./src/**/*.{ts,tsx,css,graphql}\"",
+    "predeploy": "bun run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
@@ -40,6 +43,7 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "gh-pages": "^6.1.1",
     "prettier": "^3.2.5",
     "typescript": "^5.4.5",
     "vite": "^5.2.0",
