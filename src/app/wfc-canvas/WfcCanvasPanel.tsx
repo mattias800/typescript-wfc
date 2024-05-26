@@ -253,15 +253,15 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
       </Row>
       <Canvas
         id={id}
-        width={"1280px"}
-        height={"720px"}
+        width={"960px"}
+        height={"512px"}
         onClick={onClickCanvas}
         onMouseMove={onMouseOverCanvas}
         onMouseOut={() => setMouseTileCoordinate(undefined)}
         style={{
           border: "1px solid " + cssColor("--silver"),
-          width: "2560px",
-          height: "1440px",
+          width: "1920px",
+          height: "1024px",
           imageRendering: "pixelated",
         }}
         ref={canvasRef}
