@@ -25,11 +25,11 @@ export const extractUniqueTiles = (
 
   const rows = settingsY.limitNumTiles
     ? settingsY.numTilesLimit
-    : imageData.height / settingsY.tileSize;
+    : Math.floor(imageData.height / settingsY.tileSize);
 
   const cols = settingsX.limitNumTiles
     ? settingsX.numTilesLimit
-    : imageData.width / settingsX.tileSize;
+    : Math.floor(imageData.width / settingsX.tileSize);
 
   const tileMap: TileMap = {
     cols,
