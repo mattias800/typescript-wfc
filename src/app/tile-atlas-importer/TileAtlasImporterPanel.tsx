@@ -16,7 +16,7 @@ import { cssColor } from "@stenajs-webui/theme";
 import { validateRuleSet } from "../../wfc/RuleSetValidator.ts";
 import { deleteInvalidTiles } from "../../wfc/RuleSetModifier.ts";
 import { TileAtlasImporterModalResult } from "./TileAtlasImporterModal.tsx";
-import {logObj} from "../../wfc/WfcTileFactory.ts";
+import { logObj } from "../../wfc/WfcTileFactory.ts";
 
 export interface TileAtlasImporterPanelProps {}
 
@@ -70,8 +70,8 @@ export const TileAtlasImporterPanel: React.FC<
       const imageData = getImageDataFromImage(image);
       const r = extractUniqueTiles(settingsX, settingsY, imageData);
 
-      console.log("-------------")
-      logObj(r)
+      console.log("-------------");
+      logObj(r);
       const importedRuleSet = extractRuleSet(r.tileMap);
 
       const validationErrors = validateRuleSet(importedRuleSet);

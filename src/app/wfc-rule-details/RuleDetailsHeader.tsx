@@ -39,7 +39,9 @@ export const RuleDetailsHeader: React.FC<RuleDetailsHeaderProps> = ({
           }),
         );
       }
-    } catch (e) {}
+    } catch (e) {
+      /* empty */
+    }
   };
 
   return (

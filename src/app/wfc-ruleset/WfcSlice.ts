@@ -13,7 +13,11 @@ import {
   replaceTileInRuleSet,
 } from "../../wfc/RuleSetModifier.ts";
 import { initWfcData } from "../../wfc/WfcTileFactory.ts";
-import { collapseTile, uncollapseTile } from "../../wfc/WfcTilePlacer.ts"; // Define a type for the slice state
+import {
+  addTileToAllowedInItsNeighbours,
+  collapseTile,
+  uncollapseTile,
+} from "../../wfc/WfcTilePlacer.ts"; // Define a type for the slice state
 
 interface WfcState {
   ruleSet: RuleSet | undefined;
@@ -133,6 +137,27 @@ export const wfcSlice = createSlice({
       }
 
       removeAllowedNeighbour(state.ruleSet, tileId, neighbourId, direction);
+    },
+    addTileToAllowedInItsNeighbours: (
+      state,
+      {
+        payload: { tileId, col, row },
+      }: PayloadAction<{
+        tileId: TileId;
+        col: number;
+        row: number;
+      }>,
+    ) => {
+      if (state.ruleSet == null || state.wfcData == null) {
+        return state;
+      }
+      addTileToAllowedInItsNeighbours(
+        col,
+        row,
+        tileId,
+        state.wfcData,
+        state.ruleSet,
+      );
     },
   },
 });

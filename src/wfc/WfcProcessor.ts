@@ -54,7 +54,7 @@ export const replaceSingleAllowedWithSelected = (
     for (let col = 0; col < wfcData.cols; col++) {
       const tile = getWfcTile(wfcData, row, col);
       if (!tile.collapsed && tile.options.length === 1) {
-        console.log("Found one that can be collapsed!")
+        console.log("Found one that can be collapsed!");
         collapseTile(col, row, tile.options[0], wfcData, ruleSet);
         anyTilesUpdated = true;
       }

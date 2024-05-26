@@ -22,6 +22,67 @@ export const uncollapseTile = (
   updateNeighboursAllowedTiles(col, row, wfcData, ruleSet);
 };
 
+export const addTileToAllowedInItsNeighbours = (
+  col: number,
+  row: number,
+  tile: TileId,
+  wfcData: WfcData,
+  ruleSet: RuleSet,
+): void => {
+  if (col > 0) {
+    const t = getWfcTile(wfcData, row, col - 1).collapsed;
+    if (t) {
+      if (!ruleSet[t].right.includes(tile)) {
+        ruleSet[t].right.push(tile);
+        ruleSet[t].right.sort();
+      }
+      if (!ruleSet[tile].left.includes(t)) {
+        ruleSet[tile].left.push(t);
+        ruleSet[tile].left.sort();
+      }
+    }
+  }
+  if (col < wfcData.cols - 1) {
+    const t = getWfcTile(wfcData, row, col + 1).collapsed;
+    if (t) {
+      if (!ruleSet[t].left.includes(tile)) {
+        ruleSet[t].left.push(tile);
+        ruleSet[t].left.sort();
+      }
+      if (!ruleSet[tile].right.includes(t)) {
+        ruleSet[tile].right.push(t);
+        ruleSet[tile].right.sort();
+      }
+    }
+  }
+  if (row > 0) {
+    const t = getWfcTile(wfcData, row - 1, col).collapsed;
+    if (t) {
+      if (!ruleSet[t].down.includes(tile)) {
+        ruleSet[t].down.push(tile);
+        ruleSet[t].down.sort();
+      }
+      if (!ruleSet[tile].up.includes(t)) {
+        ruleSet[tile].up.push(t);
+        ruleSet[tile].up.sort();
+      }
+    }
+  }
+  if (row < wfcData.rows - 1) {
+    const t = getWfcTile(wfcData, row + 1, col).collapsed;
+    if (t) {
+      if (!ruleSet[t].up.includes(tile)) {
+        ruleSet[t].up.push(tile);
+        ruleSet[t].up.sort();
+      }
+      if (!ruleSet[tile].down.includes(t)) {
+        ruleSet[tile].down.push(t);
+        ruleSet[tile].down.sort();
+      }
+    }
+  }
+};
+
 export const updateNeighboursAllowedTiles = (
   col: number,
   row: number,

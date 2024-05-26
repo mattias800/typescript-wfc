@@ -112,9 +112,8 @@ export const tileAtlasStateToImageElements = async (
   const r: Record<TileId, HTMLImageElement> = {};
   const tileIds = Object.keys(atlas);
 
-  for (let tileId of tileIds) {
-    const image = await base64ToImageAsync(atlas[tileId]);
-    r[tileId] = image;
+  for (const tileId of tileIds) {
+    r[tileId] = await base64ToImageAsync(atlas[tileId]);
   }
 
   return r;

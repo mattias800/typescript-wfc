@@ -131,8 +131,14 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
                 tileId: result.selectedTileId,
               }),
             );
-            if (result.selectedTileIsNotAllowed) {
-              // TODO Update rule
+            if (result.selectedTileIsNotAllowed && ruleSet) {
+              dispatch(
+                wfcSlice.actions.addTileToAllowedInItsNeighbours({
+                  col,
+                  row,
+                  tileId: result.selectedTileId,
+                }),
+              );
             }
           }
         } catch (e) {

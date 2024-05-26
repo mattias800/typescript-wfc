@@ -1,13 +1,13 @@
 import { TileAtlasDimensionSettings } from "../app/tile-atlas-importer/TileAtlasImporterSlice.ts";
 
+const lightCellColor = "#ddb18060";
+const darkCellColor = "#7c330c60";
+
 export const drawChessBoard = (
   ctx: CanvasRenderingContext2D,
   settingsX: TileAtlasDimensionSettings,
   settingsY: TileAtlasDimensionSettings,
 ) => {
-  let lightCellColor = "#ddb18060";
-  let darkCellColor = "#7c330c60";
-
   const maxY = settingsY.limitNumTiles ? settingsY.numTilesLimit : 99;
   const maxX = settingsX.limitNumTiles ? settingsX.numTilesLimit : 99;
 
