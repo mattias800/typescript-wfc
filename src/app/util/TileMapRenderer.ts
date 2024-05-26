@@ -1,4 +1,4 @@
-import { TileMap, TileId, WfcData } from "../../wfc/CommonTypes.ts";
+import { TileId, TileMap, WfcData } from "../../wfc/CommonTypes.ts";
 import { mapWfcDataToSourceMap } from "../../wfc/SourceMapMapper.ts";
 import { getTile, getWfcTile } from "../../wfc/WfcTileFactory.ts";
 
@@ -42,12 +42,7 @@ export const renderAllowedNeighbours = (
     for (let x = 0; x < wfcData.cols; x++) {
       const tile = getWfcTile(wfcData, y, x);
       if (!tile.collapsed) {
-        renderNumber(
-          ctx,
-          tile.options.length,
-          x * tileWidth + tileWidth / 2,
-          y * tileHeight + tileHeight / 2,
-        );
+        renderOptions(ctx, tile.options.length, x, y, tileWidth, tileHeight);
       }
     }
   }
@@ -62,12 +57,23 @@ export const renderTile = (
   ctx.drawImage(tile, x, y);
 };
 
-export const renderNumber = (
+export const renderOptions = (
   ctx: CanvasRenderingContext2D,
   num: number,
-  x: number,
-  y: number,
+  col: number,
+  row: number,
+  tileWidth: number,
+  tileHeight: number,
 ) => {
+  if (num === 0) {
+    ctx.fillStyle = "rgba(201,97,97,0.38)";
+    ctx.fillRect(col * tileWidth, row * tileHeight, tileWidth, tileHeight);
+  }
   ctx.font = "6px serif";
-  ctx.fillText(String(num), x, y);
+  ctx.fillStyle = "#000000FF";
+  ctx.fillText(
+    String(num),
+    col * tileWidth + tileWidth / 2,
+    row * tileHeight + tileHeight / 2,
+  );
 };

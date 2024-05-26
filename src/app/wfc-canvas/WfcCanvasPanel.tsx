@@ -229,6 +229,7 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
             label={"Enable backtracking"}
             value={backtrackingEnabled}
             onValueChange={setBacktrackingEnabled}
+            disabled={loading}
           />
         </Row>
         <Row alignItems={"center"}>
@@ -252,15 +253,15 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
       </Row>
       <Canvas
         id={id}
-        width={"640px"}
-        height={"360"}
+        width={"1280px"}
+        height={"720px"}
         onClick={onClickCanvas}
         onMouseMove={onMouseOverCanvas}
         onMouseOut={() => setMouseTileCoordinate(undefined)}
         style={{
           border: "1px solid " + cssColor("--silver"),
-          width: "1280px",
-          height: "720px",
+          width: "2560px",
+          height: "1440px",
           imageRendering: "pixelated",
         }}
         ref={canvasRef}
