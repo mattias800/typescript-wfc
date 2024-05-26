@@ -59,14 +59,6 @@ export const processRollbackAndRenderAsync = async (
     };
   }
 
-  if (backtrackingEnabled && hasAnyTileZeroEntropy(wfcData)) {
-    return {
-      type: "error",
-      message: "Found zero entropy.",
-      wfcData: wfcData,
-    };
-  }
-
   const lowestEntropy = findTilesWithLowestEntropy(wfcData);
 
   if (lowestEntropy.entropy < 2) {
@@ -116,6 +108,14 @@ export const processRollbackAndRenderAsync = async (
       renderWfcData(ctx, nextWfcData, atlas, tileWidth, tileHeight);
 
       await asyncDelay(1);
+
+      if (backtrackingEnabled && hasAnyTileZeroEntropy(wfcData)) {
+        return {
+          type: "error",
+          message: "Collapse caused zero entropy.",
+          wfcData: wfcData,
+        };
+      }
 
       const result = await processRollbackAndRenderAsync(
         ctx,

@@ -25,8 +25,8 @@ interface WfcState {
 const initialState: WfcState = {
   ruleSet: undefined,
   wfcData: undefined,
-  cols: 20,
-  rows: 20,
+  cols: 58,
+  rows: 31,
 };
 
 export const wfcSlice = createSlice({
