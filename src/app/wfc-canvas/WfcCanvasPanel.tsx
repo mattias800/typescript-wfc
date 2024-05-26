@@ -20,6 +20,12 @@ import { ErrorPanel } from "./ErrorPanel.tsx";
 import { SwitchWithLabel } from "@stenajs-webui/forms";
 import { getWfcTile } from "../../wfc/WfcTileFactory.ts";
 import { WfcSettingsForm } from "./WfcSettingsForm.tsx";
+import {
+  TileSelectModal,
+  TileSelectModalProps,
+  TileSelectModalResult,
+} from "./tile-select/TileSelectModal.tsx";
+import { asyncDelay } from "../../util/AsyncDelay.ts";
 
 export interface WfcCanvasPanelProps {}
 
@@ -45,7 +51,12 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
   const [backtrackingEnabled, setBacktrackingEnabled] = useState(true);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const [dialog, { show }] = useModalDialog(RuleDetailsModal);
+  const [ruleDetailsDialog, { show: showRuleDetails }] =
+    useModalDialog(RuleDetailsModal);
+  const [tileSelectDialog, { show: showTileSelect }] = useModalDialog<
+    TileSelectModalProps,
+    TileSelectModalResult
+  >(TileSelectModal);
 
   const [loading, setLoading] = useState(false);
   const cancellationTokenRef = useRef<CancellationToken>();
@@ -95,13 +106,30 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
     const rect = canvas.getBoundingClientRect();
     const x = (ev.clientX - rect.left) / canvasScale;
     const y = (ev.clientY - rect.top) / canvasScale;
-    const tileX = Math.floor(x / tileWidth);
-    const tileY = Math.floor(y / tileHeight);
+    const col = Math.floor(x / tileWidth);
+    const row = Math.floor(y / tileHeight);
 
     if (wfcData) {
-      const tileId = getWfcTile(wfcData, tileY, tileX).collapsed;
+      const tileId = getWfcTile(wfcData, row, col).collapsed;
       if (tileId) {
-        await show({ tileId });
+        await showRuleDetails({ tileId });
+      } else {
+        const result = await showTileSelect({
+          coordinate: { row: row, col: col },
+        });
+        await asyncDelay(100);
+        if (result) {
+          dispatch(
+            wfcSlice.actions.setWfcTile({
+              row,
+              col,
+              tileId: result.selectedTileId,
+            }),
+          );
+          if (result.selectedTileIsNotAllowed) {
+            // TODO Update rule
+          }
+        }
       }
     }
   };
@@ -128,7 +156,6 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
     setError(undefined);
     setLoading(true);
 
-    console.log("START", { wfcData });
     try {
       cancellationTokenRef.current = new CancellationToken();
       const r = await processRollbackAndRenderAsync(
@@ -175,24 +202,38 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
 
   return (
     <Column gap={2}>
-      {dialog}
-      <Row alignItems={"center"} gap={2} minHeight={"40px"}>
-        <PrimaryButton
-          label={loading ? "Stop" : "Start"}
-          onClick={loading ? onClickCancel : onClickGenerate}
-          loadingLabel={"Stop"}
-        />
-        {loading && <Spinner size={"tiny"} />}
-        <SecondaryButton
-          label={"Clear"}
-          onClick={onClickClear}
-          disabled={loading}
-        />
-        <SwitchWithLabel
-          label={"Enable backtracking"}
-          value={backtrackingEnabled}
-          onValueChange={setBacktrackingEnabled}
-        />
+      {ruleDetailsDialog}
+      {tileSelectDialog}
+      <Row alignItems={"center"} gap={2} justifyContent={"space-between"}>
+        <Row alignItems={"center"} gap={2} minHeight={"40px"}>
+          <PrimaryButton
+            label={loading ? "Stop" : "Start"}
+            onClick={loading ? onClickCancel : onClickGenerate}
+            loadingLabel={"Stop"}
+          />
+          {loading && <Spinner size={"tiny"} />}
+          <SecondaryButton
+            label={"Clear"}
+            onClick={onClickClear}
+            disabled={loading}
+          />
+          <SwitchWithLabel
+            label={"Enable backtracking"}
+            value={backtrackingEnabled}
+            onValueChange={setBacktrackingEnabled}
+          />
+        </Row>
+        <Row alignItems={"center"}>
+          {error && (
+            <>
+              <Indent num={4} />
+              <ErrorPanel text={error} />
+            </>
+          )}
+        </Row>
+      </Row>
+
+      <Row alignItems={"center"} gap={4}>
         <WfcSettingsForm />
         {mouseTileCoordinate && (
           <Text>
@@ -200,14 +241,7 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
             {mouseTileCoordinate.mouseTileIndex}
           </Text>
         )}
-        {error && (
-          <>
-            <Indent num={4} />
-            <ErrorPanel text={error} />
-          </>
-        )}
       </Row>
-
       <Canvas
         id={id}
         width={"640px"}

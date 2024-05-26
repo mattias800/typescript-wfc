@@ -12,6 +12,16 @@ export const collapseTile = (
   updateNeighboursAllowedTiles(col, row, wfcData, ruleSet);
 };
 
+export const uncollapseTile = (
+  col: number,
+  row: number,
+  wfcData: WfcData,
+  ruleSet: RuleSet,
+) => {
+  getWfcTile(wfcData, row, col).collapsed = undefined;
+  updateNeighboursAllowedTiles(col, row, wfcData, ruleSet);
+};
+
 export const updateNeighboursAllowedTiles = (
   col: number,
   row: number,

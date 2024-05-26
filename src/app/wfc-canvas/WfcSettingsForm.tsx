@@ -13,7 +13,7 @@ export const WfcSettingsForm: React.FC<WfcSettingsFormProps> = () => {
   const dispatch = useAppDispatch();
 
   return (
-    <Row>
+    <Row gap={2}>
       <Label text={"Cols: " + cols}>
         <input
           type={"range"}
