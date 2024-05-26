@@ -1,7 +1,11 @@
 import * as React from "react";
 import { MouseEventHandler, useEffect, useId, useRef, useState } from "react";
 import { Column, Indent, Row, Text } from "@stenajs-webui/core";
-import { PrimaryButton, SecondaryButton } from "@stenajs-webui/elements";
+import {
+  PrimaryButton,
+  SecondaryButton,
+  Spinner,
+} from "@stenajs-webui/elements";
 import { Canvas } from "../../canvas/Canvas.tsx";
 import { cssColor } from "@stenajs-webui/theme";
 import { tileAtlasStateToImageElements } from "../util/ImageDataUtil.ts";
@@ -174,16 +178,16 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
       {dialog}
       <Row alignItems={"center"} gap={2} minHeight={"40px"}>
         <PrimaryButton
-          label={"Generate"}
-          onClick={onClickGenerate}
-          loading={loading}
+          label={loading ? "Stop" : "Start"}
+          onClick={loading ? onClickCancel : onClickGenerate}
+          loadingLabel={"Stop"}
+        />
+        {loading && <Spinner size={"tiny"} />}
+        <SecondaryButton
+          label={"Clear"}
+          onClick={onClickClear}
           disabled={loading}
         />
-        {loading ? (
-          <SecondaryButton label={"Cancel"} onClick={onClickCancel} />
-        ) : (
-          <SecondaryButton label={"Clear"} onClick={onClickClear} />
-        )}
         <SwitchWithLabel
           label={"Enable backtracking"}
           value={backtrackingEnabled}

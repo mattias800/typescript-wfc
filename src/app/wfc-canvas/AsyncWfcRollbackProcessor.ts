@@ -6,13 +6,12 @@ import {
 import {
   allTilesHaveBeenSelected,
   findTilesWithLowestEntropy,
-  replaceSingleAllowedWithSelected,
   shuffleArray,
 } from "../../wfc/WfcProcessor.ts";
 import { renderWfcData } from "../util/TileMapRenderer.ts";
-import { asyncDelay } from "../../util/AsyncDelay.ts";
 import { CancellationToken } from "../util/CancellationToken.ts";
 import { cloneWfcData, getWfcTile } from "../../wfc/WfcTileFactory.ts";
+import { asyncDelay } from "../../util/AsyncDelay.ts";
 
 export type ProcessResult =
   | ProcessSuccess
@@ -47,12 +46,11 @@ export const processRollbackAndRenderAsync = async (
   cancellationToken: CancellationToken,
 ): Promise<ProcessResult> => {
   /*
-        1. Find all lowest entropy, randomize list
-        2. For each, randomize options
-        3. For each, clone wcf data, set tile and update neighbours
-        4. Call recursively
-         */
-
+              1. Find all lowest entropy, randomize list
+              2. For each, randomize options
+              3. For each, clone wcf data, set tile and update neighbours
+              4. Call recursively
+               */
   if (cancellationToken.isCancelled()) {
     renderWfcData(ctx, wfcData, atlas, tileWidth, tileHeight);
     return {
@@ -69,34 +67,9 @@ export const processRollbackAndRenderAsync = async (
     };
   }
 
-  console.log("collapsing singles");
-  console.log("before", wfcData);
-  for (let j = 0; j < 10000; j++) {
-    let workDone = false;
-    try {
-      workDone = replaceSingleAllowedWithSelected(wfcData, ruleSet);
-    } catch (e) {
-      renderWfcData(ctx, wfcData, atlas, tileWidth, tileHeight);
-      if (e instanceof Error) {
-        throw new Error("Collapsing failed: " + e.message);
-      } else {
-        throw new Error("Collapsing failed: Unknown reason");
-      }
-    }
+  const lowestEntropy = findTilesWithLowestEntropy(wfcData);
 
-    renderWfcData(ctx, wfcData, atlas, tileWidth, tileHeight);
-    if (!workDone) {
-      break;
-    }
-  }
-
-  console.log("after", wfcData);
-
-  await asyncDelay(1);
-
-  const { coordinates, entropy } = findTilesWithLowestEntropy(wfcData);
-
-  if (entropy < 2) {
+  if (lowestEntropy.entropy < 2) {
     return {
       type: "error",
       message: "Found entropy below 2.",
@@ -104,7 +77,7 @@ export const processRollbackAndRenderAsync = async (
     };
   }
 
-  if (coordinates.length === 0) {
+  if (lowestEntropy.coordinates.length === 0) {
     // There are no more tiles that can be selected.
     if (allTilesHaveBeenSelected(wfcData)) {
       return {
@@ -119,26 +92,30 @@ export const processRollbackAndRenderAsync = async (
       };
     }
   }
+  const coordinates = shuffleArray(lowestEntropy.coordinates);
 
-  const shuffledCoordinates = shuffleArray(coordinates);
+  for (let i = 0; i < coordinates.length; i++) {
+    const coordinate = coordinates[i];
 
-  for (const c of shuffledCoordinates) {
-    const tile = getWfcTile(wfcData, c.row, c.col);
+    const tile = getWfcTile(wfcData, coordinate.row, coordinate.col);
+    const options = shuffleArray(tile.options);
 
-    if (tile.options.length === 0) {
-      return {
-        type: "error",
-        message: "Found tile with entropy 0.",
-        wfcData: wfcData,
-      };
-    }
+    for (let j = 0; j < options.length; j++) {
+      const option = options[j];
 
-    const allowedTiles = shuffleArray(tile.options);
-
-    for (const allowedTile of allowedTiles) {
       const nextWfcData = cloneWfcData(wfcData);
-      collapseTile(c.col, c.row, allowedTile, nextWfcData, ruleSet);
+
+      collapseTile(
+        coordinate.col,
+        coordinate.row,
+        option,
+        nextWfcData,
+        ruleSet,
+      );
+
       renderWfcData(ctx, nextWfcData, atlas, tileWidth, tileHeight);
+
+      await asyncDelay(1);
 
       const result = await processRollbackAndRenderAsync(
         ctx,

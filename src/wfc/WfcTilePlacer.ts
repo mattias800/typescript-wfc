@@ -44,6 +44,9 @@ export const updateAllowedTiles = (
   const prevAllowedTiles = getWfcTile(wfcData, row, col).options;
   const nextAllowedTiles = calculateAllowedTiles(col, row, wfcData, ruleSet);
   getWfcTile(wfcData, row, col).options = nextAllowedTiles;
+  if (nextAllowedTiles.length === 1) {
+    collapseTile(col, row, nextAllowedTiles[0], wfcData, ruleSet);
+  }
   return prevAllowedTiles.length !== nextAllowedTiles.length;
 };
 
