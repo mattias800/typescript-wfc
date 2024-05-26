@@ -1,5 +1,10 @@
 export type TileId = string;
-export type SourceMap = Array<Array<TileId>>;
+
+export interface TileMap {
+  cols: number;
+  rows: number;
+  tiles: Array<TileId>; // First <col> number of elements is the first row.
+}
 
 export interface Coordinate {
   col: number;
@@ -18,8 +23,12 @@ export interface AllowedNeighbours {
 }
 
 export interface WfcTile {
-  selectedTile: TileId | undefined;
-  allowedTiles: Array<TileId>;
+  collapsed: TileId | undefined;
+  options: Array<TileId>;
 }
 
-export type WfcData = Array<Array<WfcTile>>;
+export interface WfcData {
+  cols: number;
+  rows: number;
+  tiles: Array<WfcTile>; // First <col> number of elements is the first row.
+}

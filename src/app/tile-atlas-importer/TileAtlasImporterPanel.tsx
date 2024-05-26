@@ -10,7 +10,6 @@ import { Column, Row } from "@stenajs-webui/core";
 import { extractUniqueTiles } from "../util/TileImporter.ts";
 import { getImageDataFromImage } from "../util/ImageDataUtil.ts";
 import { extractRuleSet } from "../../wfc/RuleExtractor.ts";
-import { mapNumberMapToSourceMap } from "../../wfc/SourceMapMapper.ts";
 import { useDialogPromise } from "@stenajs-webui/modal";
 import { useDropTarget } from "./hooks/UseDropTarget.tsx";
 import { cssColor } from "@stenajs-webui/theme";
@@ -70,9 +69,7 @@ export const TileAtlasImporterPanel: React.FC<
       const imageData = getImageDataFromImage(image);
       const r = extractUniqueTiles(settingsX, settingsY, imageData);
 
-      const importedRuleSet = extractRuleSet(
-        mapNumberMapToSourceMap(r.tileMap),
-      );
+      const importedRuleSet = extractRuleSet(r.tileMap);
 
       const validationErrors = validateRuleSet(importedRuleSet);
       validationErrors.forEach((v) => console.log(v.tileId, v.message));
@@ -85,7 +82,9 @@ export const TileAtlasImporterPanel: React.FC<
         Object.keys(importedRuleSet).length - Object.keys(ruleSet).length;
 
       resolve({
-        ...r,
+        tiles: r.tiles,
+        tileMap: r.tileMap,
+        tilesRecord: r.tilesRecord,
         ruleSet,
         tileSizeX: settingsX.tileSize,
         tileSizeY: settingsY.tileSize,

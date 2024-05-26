@@ -1,5 +1,6 @@
-import { TileId, WfcData } from "../../wfc/CommonTypes.ts";
+import { TileMap, TileId, WfcData } from "../../wfc/CommonTypes.ts";
 import { mapWfcDataToSourceMap } from "../../wfc/SourceMapMapper.ts";
+import { getTile, getWfcTile } from "../../wfc/WfcTileFactory.ts";
 
 export const renderWfcData = (
   ctx: CanvasRenderingContext2D,
@@ -16,14 +17,14 @@ export const renderWfcData = (
 
 export const renderTileMap = (
   ctx: CanvasRenderingContext2D,
-  tileMap: Array<Array<TileId>>,
+  tileMap: TileMap,
   tileImages: Record<TileId, HTMLImageElement>,
   tileWidth: number,
   tileHeight: number,
 ) => {
-  for (let y = 0; y < tileMap.length; y++) {
-    for (let x = 0; x < tileMap[y].length; x++) {
-      const tileId = tileMap[y][x];
+  for (let y = 0; y < tileMap.rows; y++) {
+    for (let x = 0; x < tileMap.cols; x++) {
+      const tileId = getTile(tileMap.tiles, y, x, tileMap.cols);
       if (tileId) {
         renderTile(ctx, tileImages[tileId], x * tileWidth, y * tileHeight);
       }
@@ -37,13 +38,13 @@ export const renderAllowedNeighbours = (
   tileWidth: number,
   tileHeight: number,
 ) => {
-  for (let y = 0; y < wfcData.length; y++) {
-    for (let x = 0; x < wfcData[y].length; x++) {
-      const tile = wfcData[y][x];
-      if (!tile.selectedTile) {
+  for (let y = 0; y < wfcData.rows; y++) {
+    for (let x = 0; x < wfcData.cols; x++) {
+      const tile = getWfcTile(wfcData, y, x);
+      if (!tile.collapsed) {
         renderNumber(
           ctx,
-          tile.allowedTiles.length,
+          tile.options.length,
           x * tileWidth + tileWidth / 2,
           y * tileHeight + tileHeight / 2,
         );

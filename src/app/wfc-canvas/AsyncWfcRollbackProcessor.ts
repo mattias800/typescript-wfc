@@ -1,5 +1,8 @@
 import { RuleSet, TileId, WfcData } from "../../wfc/CommonTypes.ts";
-import { hasAnyTileZeroEntropy, setTile } from "../../wfc/WfcTilePlacer.ts";
+import {
+  collapseTile,
+  hasAnyTileZeroEntropy,
+} from "../../wfc/WfcTilePlacer.ts";
 import {
   allTilesHaveBeenSelected,
   findTilesWithLowestEntropy,
@@ -9,6 +12,7 @@ import {
 import { renderWfcData } from "../util/TileMapRenderer.ts";
 import { asyncDelay } from "../../util/AsyncDelay.ts";
 import { CancellationToken } from "../util/CancellationToken.ts";
+import { cloneWfcData, getWfcTile } from "../../wfc/WfcTileFactory.ts";
 
 export type ProcessResult =
   | ProcessSuccess
@@ -42,6 +46,13 @@ export const processRollbackAndRenderAsync = async (
   depth: number,
   cancellationToken: CancellationToken,
 ): Promise<ProcessResult> => {
+  /*
+        1. Find all lowest entropy, randomize list
+        2. For each, randomize options
+        3. For each, clone wcf data, set tile and update neighbours
+        4. Call recursively
+         */
+
   if (cancellationToken.isCancelled()) {
     renderWfcData(ctx, wfcData, atlas, tileWidth, tileHeight);
     return {
@@ -58,6 +69,8 @@ export const processRollbackAndRenderAsync = async (
     };
   }
 
+  console.log("collapsing singles");
+  console.log("before", wfcData);
   for (let j = 0; j < 10000; j++) {
     let workDone = false;
     try {
@@ -76,6 +89,8 @@ export const processRollbackAndRenderAsync = async (
       break;
     }
   }
+
+  console.log("after", wfcData);
 
   await asyncDelay(1);
 
@@ -108,9 +123,9 @@ export const processRollbackAndRenderAsync = async (
   const shuffledCoordinates = shuffleArray(coordinates);
 
   for (const c of shuffledCoordinates) {
-    const tile = wfcData[c.row][c.col];
+    const tile = getWfcTile(wfcData, c.row, c.col);
 
-    if (tile.allowedTiles.length === 0) {
+    if (tile.options.length === 0) {
       return {
         type: "error",
         message: "Found tile with entropy 0.",
@@ -118,12 +133,11 @@ export const processRollbackAndRenderAsync = async (
       };
     }
 
-    const allowedTiles = shuffleArray(tile.allowedTiles);
+    const allowedTiles = shuffleArray(tile.options);
 
     for (const allowedTile of allowedTiles) {
-      const nextWfcData = structuredClone(wfcData);
-
-      setTile(c.col, c.row, allowedTile, nextWfcData, ruleSet);
+      const nextWfcData = cloneWfcData(wfcData);
+      collapseTile(c.col, c.row, allowedTile, nextWfcData, ruleSet);
       renderWfcData(ctx, nextWfcData, atlas, tileWidth, tileHeight);
 
       const result = await processRollbackAndRenderAsync(

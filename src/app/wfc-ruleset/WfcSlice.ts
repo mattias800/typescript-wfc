@@ -24,8 +24,8 @@ interface WfcState {
 const initialState: WfcState = {
   ruleSet: undefined,
   wfcData: undefined,
-  cols: 80,
-  rows: 45,
+  cols: 20,
+  rows: 20,
 };
 
 export const wfcSlice = createSlice({
@@ -43,6 +43,18 @@ export const wfcSlice = createSlice({
     },
     setWfcData: (state, action: PayloadAction<{ wfcData: WfcData }>) => {
       state.wfcData = action.payload.wfcData;
+    },
+    setNumRows: (state, action: PayloadAction<{ rows: number }>) => {
+      state.rows = action.payload.rows;
+      if (state.ruleSet) {
+        state.wfcData = initWfcData(state.cols, state.rows, state.ruleSet);
+      }
+    },
+    setNumColumns: (state, action: PayloadAction<{ cols: number }>) => {
+      state.cols = action.payload.cols;
+      if (state.ruleSet) {
+        state.wfcData = initWfcData(state.cols, state.rows, state.ruleSet);
+      }
     },
     setRuleSet: (state, action: PayloadAction<{ ruleSet: RuleSet }>) => {
       state.ruleSet = action.payload.ruleSet;

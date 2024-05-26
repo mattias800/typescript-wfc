@@ -4,12 +4,14 @@ import {
   imageDataEquals,
   imageDataToBase64,
 } from "./ImageDataUtil.ts";
-import { TileId } from "../../wfc/CommonTypes.ts";
+import { TileId, TileMap } from "../../wfc/CommonTypes.ts";
 
 export interface ExtractTilesResult {
   tiles: Array<ImageData>;
   tilesRecord: Record<TileId, string>;
-  tileMap: Array<Array<number>>;
+  tileMap: TileMap;
+  cols: number;
+  rows: number;
 }
 
 export const extractUniqueTiles = (
@@ -18,21 +20,25 @@ export const extractUniqueTiles = (
   imageData: ImageData,
 ): ExtractTilesResult => {
   const tiles: Array<ImageData> = [];
-  const tileMap: Array<Array<number>> = [];
   const tilesRecord: Record<TileId, string> = {};
   let numRedundantTiles = 0;
 
-  const maxY = settingsY.limitNumTiles
+  const rows = settingsY.limitNumTiles
     ? settingsY.numTilesLimit
     : imageData.height / settingsY.tileSize;
 
-  const maxX = settingsX.limitNumTiles
+  const cols = settingsX.limitNumTiles
     ? settingsX.numTilesLimit
     : imageData.width / settingsX.tileSize;
 
-  for (let y = 0; y < maxY; y++) {
-    tileMap.push([]);
-    for (let x = 0; x < maxX; x++) {
+  const tileMap: TileMap = {
+    cols,
+    rows,
+    tiles: [],
+  };
+
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
       const chunk = createSubImageData(
         imageData,
         settingsX.offset + x * settingsX.tileSize + x * settingsX.separation,
@@ -43,10 +49,10 @@ export const extractUniqueTiles = (
       const i = tiles.findIndex((t) => imageDataEquals(t, chunk));
       if (i < 0) {
         tiles.push(chunk);
-        tileMap[tileMap.length - 1].push(tiles.length - 1);
+        tileMap.tiles.push(String(tiles.length - 1));
         tilesRecord[String(tiles.length - 1)] = imageDataToBase64(chunk);
       } else {
-        tileMap[tileMap.length - 1].push(i);
+        tileMap.tiles.push(String(i));
         numRedundantTiles++;
       }
     }
@@ -58,5 +64,7 @@ export const extractUniqueTiles = (
     tiles,
     tileMap,
     tilesRecord,
+    rows,
+    cols,
   };
 };

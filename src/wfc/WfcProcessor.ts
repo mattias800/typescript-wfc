@@ -5,8 +5,9 @@ import {
   WfcData,
   WfcTile,
 } from "./CommonTypes.ts";
-import { setTile } from "./WfcTilePlacer.ts";
+import { collapseTile } from "./WfcTilePlacer.ts";
 import { getRandomItem } from "../util/ListUtils.ts";
+import { getWfcTile } from "./WfcTileFactory.ts";
 
 export const process = (wfcData: WfcData, ruleSet: RuleSet): WfcData => {
   for (let i = 0; i < 10000; i++) {
@@ -28,9 +29,9 @@ export const process = (wfcData: WfcData, ruleSet: RuleSet): WfcData => {
     const c = getRandomItem(coordinates);
 
     if (c) {
-      const tile = wfcData[c.row][c.col];
+      const tile = getWfcTile(wfcData, c.row, c.col);
       const randomAllowedTile = getRandomAllowedTile(tile);
-      setTile(c.col, c.row, randomAllowedTile, wfcData, ruleSet);
+      collapseTile(c.col, c.row, randomAllowedTile, wfcData, ruleSet);
 
       workDoneInPass = true;
     }
@@ -49,15 +50,12 @@ export const replaceSingleAllowedWithSelected = (
   ruleSet: RuleSet,
 ): boolean => {
   let anyTilesUpdated = false;
-  const rows = wfcData.length;
-  const cols = wfcData[0].length;
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
-      if (
-        !wfcData[row][col].selectedTile &&
-        wfcData[row][col].allowedTiles.length === 1
-      ) {
-        setTile(col, row, wfcData[row][col].allowedTiles[0], wfcData, ruleSet);
+  for (let row = 0; row < wfcData.rows; row++) {
+    for (let col = 0; col < wfcData.cols; col++) {
+      const tile = getWfcTile(wfcData, row, col);
+      if (!tile.collapsed && tile.options.length === 1) {
+        console.log("Found one that can be collapsed!")
+        collapseTile(col, row, tile.options[0], wfcData, ruleSet);
         anyTilesUpdated = true;
       }
     }
@@ -68,32 +66,32 @@ export const replaceSingleAllowedWithSelected = (
 export const findTilesWithLowestEntropy = (
   wfcData: WfcData,
 ): { coordinates: Array<Coordinate>; entropy: number } => {
-  const rows = wfcData.length;
-  const cols = wfcData[0].length;
+  const rows = wfcData.rows;
+  const cols = wfcData.cols;
 
   let currentLowestEntropy = Infinity;
   let coordinatesWithLowestEntropy: Array<Coordinate> = [];
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      const tile = wfcData[row][col];
-      if (tile.selectedTile) {
+      const tile = getWfcTile(wfcData, row, col);
+      if (tile.collapsed) {
         continue;
       }
-      if (!tile.selectedTile && tile.allowedTiles.length === 0) {
+      if (!tile.collapsed && tile.options.length === 0) {
         // Warning, tile cannot be resolved.
         continue;
       }
 
-      if (tile.allowedTiles.length === currentLowestEntropy) {
+      if (tile.options.length === currentLowestEntropy) {
         coordinatesWithLowestEntropy.push({ row, col });
       }
 
       if (
-        tile.allowedTiles.length > 0 &&
-        tile.allowedTiles.length < currentLowestEntropy
+        tile.options.length > 0 &&
+        tile.options.length < currentLowestEntropy
       ) {
-        currentLowestEntropy = tile.allowedTiles.length;
+        currentLowestEntropy = tile.options.length;
         coordinatesWithLowestEntropy = [{ row, col }];
       }
     }
@@ -106,14 +104,14 @@ export const findTilesWithLowestEntropy = (
 };
 
 export const getRandomAllowedTile = (tile: WfcTile): TileId => {
-  if (tile.selectedTile) {
+  if (tile.collapsed) {
     throw new Error(
       "Trying to get random allowed tile, but tile has already been selected.",
     );
   }
 
-  const randomIndex = Math.floor(Math.random() * tile.allowedTiles.length);
-  return tile.allowedTiles[randomIndex];
+  const randomIndex = Math.floor(Math.random() * tile.options.length);
+  return tile.options[randomIndex];
 };
 
 export const shuffleArray = <T>(array: Array<T>): Array<T> => {
@@ -130,12 +128,12 @@ export const shuffleArray = <T>(array: Array<T>): Array<T> => {
 };
 
 export const allTilesHaveBeenSelected = (wfcData: WfcData): boolean => {
-  const rows = wfcData.length;
-  const cols = wfcData[0].length;
+  const rows = wfcData.rows;
+  const cols = wfcData.cols;
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      if (!wfcData[row][col].selectedTile) {
+      if (!getWfcTile(wfcData, row, col).collapsed) {
         return false;
       }
     }

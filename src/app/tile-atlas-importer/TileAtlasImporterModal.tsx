@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ModalBody, ModalHeader, useDialogPromise } from "@stenajs-webui/modal";
 import { TileAtlasImporterPanel } from "./TileAtlasImporterPanel.tsx";
-import { RuleSet, TileId } from "../../wfc/CommonTypes.ts";
+import { RuleSet, TileMap, TileId } from "../../wfc/CommonTypes.ts";
 
 export interface TileAtlasImporterModalProps {}
 
@@ -11,7 +11,7 @@ export interface TileAtlasImporterModalResult {
   tileSizeY: number;
   tiles: Array<ImageData>;
   tilesRecord: Record<TileId, string>;
-  tileMap: Array<Array<number>>;
+  tileMap: TileMap;
   numDeletedTiles: number | undefined;
 }
 

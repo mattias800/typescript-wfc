@@ -4,27 +4,42 @@ import { initWfcData } from "../WfcTileFactory.ts";
 describe("WfcTileFactory", () => {
   describe("initWfcData", () => {
     describe("with simple result set", () => {
-      const r = extractRuleSet([
-        ["4", "1", "1", "1"],
-        ["1", "2", "2", "3"],
-        ["1", "2", "3", "3"],
-        ["1", "3", "3", "3"],
-      ]);
+      const r = extractRuleSet({
+        cols: 4,
+        rows: 4,
+        tiles: [
+          "4",
+          "1",
+          "1",
+          "1",
+          "1",
+          "2",
+          "2",
+          "3",
+          "1",
+          "2",
+          "3",
+          "3",
+          "1",
+          "3",
+          "3",
+          "3",
+        ],
+      });
 
       const t = initWfcData(2, 3, r);
 
       it("is correct size", () => {
-        expect(t.length).toBe(3);
-        expect(t[0].length).toBe(2);
+        expect(t.tiles.length).toBe(6);
       });
 
       it("includes all possibilities", () => {
-        expect(t[0][0].allowedTiles).toEqual(["1", "2", "3", "4"]);
-        expect(t[0][1].allowedTiles).toEqual(["1", "2", "3", "4"]);
-        expect(t[1][0].allowedTiles).toEqual(["1", "2", "3", "4"]);
-        expect(t[1][1].allowedTiles).toEqual(["1", "2", "3", "4"]);
-        expect(t[2][0].allowedTiles).toEqual(["1", "2", "3", "4"]);
-        expect(t[2][1].allowedTiles).toEqual(["1", "2", "3", "4"]);
+        expect(t.tiles[0].options).toEqual(["1", "2", "3", "4"]);
+        expect(t.tiles[1].options).toEqual(["1", "2", "3", "4"]);
+        expect(t.tiles[2].options).toEqual(["1", "2", "3", "4"]);
+        expect(t.tiles[3].options).toEqual(["1", "2", "3", "4"]);
+        expect(t.tiles[4].options).toEqual(["1", "2", "3", "4"]);
+        expect(t.tiles[5].options).toEqual(["1", "2", "3", "4"]);
       });
     });
   });

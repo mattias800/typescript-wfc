@@ -3,10 +3,11 @@ import { extractRuleSet } from "../RuleExtractor.ts";
 describe("Wfc", () => {
   describe("extractRuleSet", () => {
     describe("2x2 example", () => {
-      const r = extractRuleSet([
-        ["1", "1"],
-        ["1", "2"],
-      ]);
+      const r = extractRuleSet({
+        rows: 2,
+        cols: 2,
+        tiles: ["1", "1", "1", "2"],
+      });
 
       it("extracts all tiles", () => {
         expect(Object.keys(r)).toEqual(["1", "2"]);
@@ -34,12 +35,28 @@ describe("Wfc", () => {
     });
 
     describe("4x4 example", () => {
-      const r = extractRuleSet([
-        ["4", "1", "1", "1"],
-        ["1", "2", "2", "3"],
-        ["1", "2", "3", "3"],
-        ["1", "3", "3", "3"],
-      ]);
+      const r = extractRuleSet({
+        rows: 4,
+        cols: 4,
+        tiles: [
+          "4",
+          "1",
+          "1",
+          "1",
+          "1",
+          "2",
+          "2",
+          "3",
+          "1",
+          "2",
+          "3",
+          "3",
+          "1",
+          "3",
+          "3",
+          "3",
+        ],
+      });
 
       it("extracts all tiles", () => {
         expect(Object.keys(r)).toEqual(["1", "2", "3", "4"]);

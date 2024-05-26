@@ -5,17 +5,33 @@ import { calculateAllowedTiles } from "../WfcTilePlacer.ts";
 describe("WfcTilePlacer", () => {
   describe("calculateAllowedTiles", () => {
     describe("with small ruleset", () => {
-      const ruleSet = extractRuleSet([
-        ["4", "1", "1", "1"],
-        ["1", "2", "2", "3"],
-        ["1", "2", "3", "3"],
-        ["1", "3", "3", "3"],
-      ]);
+      const ruleSet = extractRuleSet({
+        rows: 4,
+        cols: 4,
+        tiles: [
+          "4",
+          "1",
+          "1",
+          "1",
+          "1",
+          "2",
+          "2",
+          "3",
+          "1",
+          "2",
+          "3",
+          "3",
+          "1",
+          "3",
+          "3",
+          "3",
+        ],
+      });
 
       describe("placing a 4", () => {
         it("updates neighbouring tiles", () => {
           const d = initWfcData(4, 4, ruleSet);
-          d[0][0].selectedTile = "4";
+          d.tiles[0].collapsed = "4";
 
           expect(calculateAllowedTiles(1, 0, d, ruleSet)).toEqual(["1"]);
           expect(calculateAllowedTiles(0, 1, d, ruleSet)).toEqual(["1"]);

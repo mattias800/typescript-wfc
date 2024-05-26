@@ -1,13 +1,14 @@
 import { RuleSet, TileId, WfcData } from "./CommonTypes.ts";
+import { getWfcTile } from "./WfcTileFactory.ts";
 
-export const setTile = (
+export const collapseTile = (
   col: number,
   row: number,
   tile: TileId,
   wfcData: WfcData,
   ruleSet: RuleSet,
 ) => {
-  wfcData[row][col].selectedTile = tile;
+  getWfcTile(wfcData, row, col).collapsed = tile;
   updateNeighboursAllowedTiles(col, row, wfcData, ruleSet);
 };
 
@@ -17,32 +18,17 @@ export const updateNeighboursAllowedTiles = (
   wfcData: WfcData,
   ruleSet: RuleSet,
 ): void => {
-  const rows = wfcData.length;
-  const cols = wfcData[0].length;
-
   if (row > 0) {
-    const hasChanges = updateAllowedTiles(col, row - 1, wfcData, ruleSet);
-    if (hasChanges) {
-      updateNeighboursAllowedTiles(col, row - 1, wfcData, ruleSet);
-    }
+    updateAllowedTiles(col, row - 1, wfcData, ruleSet);
   }
-  if (row < rows - 1) {
-    const hasChanges = updateAllowedTiles(col, row + 1, wfcData, ruleSet);
-    if (hasChanges) {
-      updateNeighboursAllowedTiles(col, row + 1, wfcData, ruleSet);
-    }
+  if (row < wfcData.rows - 1) {
+    updateAllowedTiles(col, row + 1, wfcData, ruleSet);
   }
   if (col > 0) {
-    const hasChanges = updateAllowedTiles(col - 1, row, wfcData, ruleSet);
-    if (hasChanges) {
-      updateNeighboursAllowedTiles(col - 1, row, wfcData, ruleSet);
-    }
+    updateAllowedTiles(col - 1, row, wfcData, ruleSet);
   }
-  if (col < cols - 1) {
-    const hasChanges = updateAllowedTiles(col + 1, row, wfcData, ruleSet);
-    if (hasChanges) {
-      updateNeighboursAllowedTiles(col + 1, row, wfcData, ruleSet);
-    }
+  if (col < wfcData.cols - 1) {
+    updateAllowedTiles(col + 1, row, wfcData, ruleSet);
   }
 };
 
@@ -52,12 +38,12 @@ export const updateAllowedTiles = (
   wfcData: WfcData,
   ruleSet: RuleSet,
 ): boolean => {
-  if (wfcData[row][col].selectedTile) {
+  if (getWfcTile(wfcData, row, col).collapsed) {
     return false;
   }
-  const prevAllowedTiles = wfcData[row][col].allowedTiles;
+  const prevAllowedTiles = getWfcTile(wfcData, row, col).options;
   const nextAllowedTiles = calculateAllowedTiles(col, row, wfcData, ruleSet);
-  wfcData[row][col].allowedTiles = nextAllowedTiles;
+  getWfcTile(wfcData, row, col).options = nextAllowedTiles;
   return prevAllowedTiles.length !== nextAllowedTiles.length;
 };
 
@@ -67,33 +53,33 @@ export const calculateAllowedTiles = (
   wfcData: WfcData,
   ruleSet: RuleSet,
 ): Array<TileId> => {
-  const rows = wfcData.length;
-  const cols = wfcData[0].length;
+  const rows = wfcData.rows;
+  const cols = wfcData.cols;
 
   const allTiles: Array<TileId> = Object.keys(ruleSet);
 
   const notAllowed: Array<TileId> = [];
 
   if (col > 0) {
-    const tileId = wfcData[row][col - 1].selectedTile;
+    const tileId = getWfcTile(wfcData, row, col - 1).collapsed;
     if (tileId) {
       concatUnique(notAllowed, getNotAllowed(allTiles, ruleSet[tileId]?.right));
     }
   }
   if (col < cols - 1) {
-    const tileId = wfcData[row][col + 1].selectedTile;
+    const tileId = getWfcTile(wfcData, row, col + 1).collapsed;
     if (tileId) {
       concatUnique(notAllowed, getNotAllowed(allTiles, ruleSet[tileId]?.left));
     }
   }
   if (row > 0) {
-    const tileId = wfcData[row - 1][col].selectedTile;
+    const tileId = getWfcTile(wfcData, row - 1, col).collapsed;
     if (tileId) {
       concatUnique(notAllowed, getNotAllowed(allTiles, ruleSet[tileId]?.down));
     }
   }
   if (row < rows - 1) {
-    const tileId = wfcData[row + 1][col].selectedTile;
+    const tileId = getWfcTile(wfcData, row + 1, col).collapsed;
     if (tileId) {
       concatUnique(notAllowed, getNotAllowed(allTiles, ruleSet[tileId]?.up));
     }
@@ -122,26 +108,26 @@ export const hasAnyNeighbourZeroEntropy = (
   row: number,
   wfcData: WfcData,
 ): boolean => {
-  const rows = wfcData.length;
-  const cols = wfcData[0].length;
+  const rows = wfcData.rows;
+  const cols = wfcData.cols;
 
   if (row > 0) {
-    if (wfcData[row][col - 1].allowedTiles.length === 0) {
+    if (getWfcTile(wfcData, row, col - 1).options.length === 0) {
       return true;
     }
   }
   if (row < rows - 1) {
-    if (wfcData[row][col + 1].allowedTiles.length === 0) {
+    if (getWfcTile(wfcData, row, col + 1).options.length === 0) {
       return true;
     }
   }
   if (col > 0) {
-    if (wfcData[row - 1][col].allowedTiles.length === 0) {
+    if (getWfcTile(wfcData, row - 1, col).options.length === 0) {
       return true;
     }
   }
   if (col < cols - 1) {
-    if (wfcData[row + 1][col].allowedTiles.length === 0) {
+    if (getWfcTile(wfcData, row + 1, col).options.length === 0) {
       return true;
     }
   }
@@ -149,12 +135,9 @@ export const hasAnyNeighbourZeroEntropy = (
 };
 
 export const hasAnyTileZeroEntropy = (wfcData: WfcData): boolean => {
-  const rows = wfcData.length;
-  const cols = wfcData[0].length;
-
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
-      if (wfcData[row][col].allowedTiles.length === 0) {
+  for (let row = 0; row < wfcData.rows; row++) {
+    for (let col = 0; col < wfcData.cols; col++) {
+      if (getWfcTile(wfcData, row, col).options.length === 0) {
         return true;
       }
     }

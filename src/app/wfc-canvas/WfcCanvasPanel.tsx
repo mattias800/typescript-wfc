@@ -14,6 +14,8 @@ import { wfcSlice } from "../wfc-ruleset/WfcSlice.ts";
 import { renderWfcData } from "../util/TileMapRenderer.ts";
 import { ErrorPanel } from "./ErrorPanel.tsx";
 import { SwitchWithLabel } from "@stenajs-webui/forms";
+import { getWfcTile } from "../../wfc/WfcTileFactory.ts";
+import { WfcSettingsForm } from "./WfcSettingsForm.tsx";
 
 export interface WfcCanvasPanelProps {}
 
@@ -22,6 +24,7 @@ const getWfcData = (s: RootState) => s.wfc.wfcData;
 interface MouseTileCoordinate {
   mouseTileX: number;
   mouseTileY: number;
+  mouseTileIndex: number;
 }
 
 export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
@@ -71,7 +74,12 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
     const y = (ev.clientY - rect.top) / canvasScale;
     const mouseTileX = Math.floor(x / tileWidth);
     const mouseTileY = Math.floor(y / tileHeight);
-    setMouseTileCoordinate({ mouseTileX, mouseTileY });
+    const mouseTileIndex = wfcData
+      ? mouseTileY * wfcData?.cols + mouseTileX
+      : 0;
+    if (mouseTileX >= 0 && mouseTileY >= 0) {
+      setMouseTileCoordinate({ mouseTileX, mouseTileY, mouseTileIndex });
+    }
   };
 
   const onClickCanvas: MouseEventHandler<HTMLCanvasElement> = async (ev) => {
@@ -87,7 +95,7 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
     const tileY = Math.floor(y / tileHeight);
 
     if (wfcData) {
-      const tileId = wfcData[tileY]?.[tileX]?.selectedTile;
+      const tileId = getWfcTile(wfcData, tileY, tileX).collapsed;
       if (tileId) {
         await show({ tileId });
       }
@@ -115,6 +123,8 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
 
     setError(undefined);
     setLoading(true);
+
+    console.log("START", { wfcData });
     try {
       cancellationTokenRef.current = new CancellationToken();
       const r = await processRollbackAndRenderAsync(
@@ -179,9 +189,11 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
           value={backtrackingEnabled}
           onValueChange={setBacktrackingEnabled}
         />
+        <WfcSettingsForm />
         {mouseTileCoordinate && (
           <Text>
-            {mouseTileCoordinate.mouseTileX}:{mouseTileCoordinate.mouseTileY}
+            {mouseTileCoordinate.mouseTileX}:{mouseTileCoordinate.mouseTileY}{" "}
+            {mouseTileCoordinate.mouseTileIndex}
           </Text>
         )}
         {error && (
@@ -194,15 +206,15 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
 
       <Canvas
         id={id}
-        width={"1280px"}
-        height={"720px"}
+        width={"640px"}
+        height={"360"}
         onClick={onClickCanvas}
         onMouseMove={onMouseOverCanvas}
         onMouseOut={() => setMouseTileCoordinate(undefined)}
         style={{
           border: "1px solid " + cssColor("--silver"),
-          width: "2560px",
-          height: "1440px",
+          width: "1280px",
+          height: "720px",
           imageRendering: "pixelated",
         }}
         ref={canvasRef}

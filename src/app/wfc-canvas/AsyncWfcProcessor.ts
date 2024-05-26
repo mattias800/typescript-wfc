@@ -1,5 +1,5 @@
 import { RuleSet, TileId, WfcData } from "../../wfc/CommonTypes.ts";
-import { setTile } from "../../wfc/WfcTilePlacer.ts";
+import { collapseTile } from "../../wfc/WfcTilePlacer.ts";
 import {
   findTilesWithLowestEntropy,
   replaceSingleAllowedWithSelected,
@@ -10,6 +10,7 @@ import { asyncDelay } from "../../util/AsyncDelay.ts";
 import { CancellationToken } from "../util/CancellationToken.ts";
 import { getRandomItem } from "../../util/ListUtils.ts";
 import { ProcessResult } from "./AsyncWfcRollbackProcessor.ts";
+import { getWfcTile } from "../../wfc/WfcTileFactory.ts";
 
 export const processAndRenderAsync = async (
   ctx: CanvasRenderingContext2D,
@@ -71,9 +72,9 @@ export const processAndRenderAsync = async (
     const c = getRandomItem(coordinates);
 
     await asyncDelay(10);
-    const tile = wfcData[c.row][c.col];
+    const tile = getWfcTile(wfcData, c.row, c.col);
 
-    if (tile.allowedTiles.length === 0) {
+    if (tile.options.length === 0) {
       return {
         type: "error",
         message: "Tried to place tile, but tile has no allowed possibilities.",
@@ -81,13 +82,13 @@ export const processAndRenderAsync = async (
       };
     }
 
-    const allowedTile = getRandomItem(tile.allowedTiles);
+    const allowedTile = getRandomItem(tile.options);
 
     console.log("allowedTile", allowedTile);
 
     try {
       console.log("Draw tile id=" + allowedTile);
-      setTile(c.col, c.row, allowedTile, wfcData, ruleSet);
+      collapseTile(c.col, c.row, allowedTile, wfcData, ruleSet);
       renderWfcData(ctx, wfcData, atlas, tileWidth, tileHeight);
     } catch (e) {
       renderWfcData(ctx, wfcData, atlas, tileWidth, tileHeight);
