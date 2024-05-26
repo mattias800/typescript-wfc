@@ -4,6 +4,7 @@ import { RuleDetailsPanel } from "./RuleDetailsPanel.tsx";
 import { Tab, TabMenu } from "@stenajs-webui/elements";
 import { useState } from "react";
 import { RuleEditorPanel } from "../wfc-rule-editor/RuleEditorPanel.tsx";
+import { RuleDetailsHeader } from "./RuleDetailsHeader.tsx";
 
 export interface RuleDetailsModalProps {
   tileId: string;
@@ -21,6 +22,7 @@ export const RuleDetailsModal: React.FC<RuleDetailsModalProps> = ({
   return (
     <ModalBody width={"800px"}>
       <ModalHeader heading={"Rule details"} onClickClose={reject} />
+      <RuleDetailsHeader tileId={tileId} />
       <TabMenu>
         <Tab
           label={"Details"}
