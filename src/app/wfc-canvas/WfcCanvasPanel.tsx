@@ -112,23 +112,31 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
     if (wfcData) {
       const tileId = getWfcTile(wfcData, row, col).collapsed;
       if (tileId) {
-        await showRuleDetails({ tileId });
+        try {
+          await showRuleDetails({ tileId });
+        } catch (e) {
+          /* empty */
+        }
       } else {
-        const result = await showTileSelect({
-          coordinate: { row: row, col: col },
-        });
-        await asyncDelay(100);
-        if (result) {
-          dispatch(
-            wfcSlice.actions.setWfcTile({
-              row,
-              col,
-              tileId: result.selectedTileId,
-            }),
-          );
-          if (result.selectedTileIsNotAllowed) {
-            // TODO Update rule
+        try {
+          const result = await showTileSelect({
+            coordinate: { row: row, col: col },
+          });
+          await asyncDelay(100);
+          if (result) {
+            dispatch(
+              wfcSlice.actions.setWfcTile({
+                row,
+                col,
+                tileId: result.selectedTileId,
+              }),
+            );
+            if (result.selectedTileIsNotAllowed) {
+              // TODO Update rule
+            }
           }
+        } catch (e) {
+          /* empty */
         }
       }
     }

@@ -17,3 +17,14 @@ export const getRandomItem = <T>(list: Array<T>): T => {
   const randomIndex = Math.floor(Math.random() * list.length);
   return list[randomIndex];
 };
+
+export const removeItem = <T>(list: Array<T>, item: T): Array<T> => {
+  return list.filter((l) => l !== item);
+};
+
+export const addIfNotExists = <T>(list: Array<T>, item: T): Array<T> => {
+  if (list.includes(item)) {
+    return list;
+  }
+  return [...list, item];
+};

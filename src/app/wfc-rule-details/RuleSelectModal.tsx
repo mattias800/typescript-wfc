@@ -26,6 +26,7 @@ export const RuleSelectModal: React.FC<RuleSelectModalProps> = () => {
       <Row flexWrap={"wrap"} gap={2}>
         {tileIds.map((tileId) => (
           <SelectableTileAtlasImage
+            key={tileId}
             tileId={tileId}
             onSelectTile={() => setSelectedId(tileId)}
             selected={tileId === selectedId}

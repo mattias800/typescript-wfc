@@ -1,5 +1,6 @@
 import { AllowedNeighbours, RuleSet, TileId } from "./CommonTypes.ts";
 import { validateRuleSet } from "./RuleSetValidator.ts";
+import { addIfNotExists, removeItem } from "../util/ListUtils.ts";
 
 export const deleteTileFromRuleSet = (ruleSet: RuleSet, tileId: TileId) => {
   delete ruleSet[tileId];
@@ -34,11 +35,18 @@ export const replaceTileInRuleSet = (
       console.log("Could not find tile while removing a tile from rule set.");
       continue;
     }
-    n.up = n.up.map((m) => (m !== tileIdToDelete ? m : tileIdToReplaceIt));
-    n.down = n.down.map((m) => (m !== tileIdToDelete ? m : tileIdToReplaceIt));
-    n.left = n.left.map((m) => (m !== tileIdToDelete ? m : tileIdToReplaceIt));
-    n.right = n.right.map((m) =>
-      m !== tileIdToDelete ? m : tileIdToReplaceIt,
+    n.up = addIfNotExists(removeItem(n.up, tileIdToDelete), tileIdToReplaceIt);
+    n.down = addIfNotExists(
+      removeItem(n.down, tileIdToDelete),
+      tileIdToReplaceIt,
+    );
+    n.left = addIfNotExists(
+      removeItem(n.left, tileIdToDelete),
+      tileIdToReplaceIt,
+    );
+    n.right = addIfNotExists(
+      removeItem(n.right, tileIdToDelete),
+      tileIdToReplaceIt,
     );
   }
 };

@@ -72,6 +72,7 @@ export const TileSelectModal: React.FC<TileSelectModalProps> = ({
         {options.length === 0 && <Text>There are no allowed tiles.</Text>}
         {options.map((option) => (
           <SelectableTileAtlasImage
+            key={option}
             tileId={option}
             onSelectTile={() => setSelectedTileId(option)}
             selected={option === selectedTileId}
@@ -82,6 +83,7 @@ export const TileSelectModal: React.FC<TileSelectModalProps> = ({
       <Row flexWrap={"wrap"} width={"700px"}>
         {notAllowedTiles.map((option) => (
           <SelectableTileAtlasImage
+            key={option}
             tileId={option}
             onSelectTile={() => setSelectedTileId(option)}
             selected={option === selectedTileId}

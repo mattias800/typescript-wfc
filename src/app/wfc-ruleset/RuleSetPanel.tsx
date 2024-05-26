@@ -14,13 +14,20 @@ export const RuleSetPanel: React.FC<RuleSetPanelProps> = ({ ruleSet }) => {
   const tileIds = Object.keys(ruleSet) as Array<TileId>;
   const [dialog, { show }] = useModalDialog(RuleDetailsModal);
 
+  const onClick = async (tileId: string) => {
+    try {
+      await show({ tileId });
+    } catch (e) {
+      /* empty */
+    }
+  };
   return (
     <Row gap={2} flexWrap={"wrap"}>
       {dialog}
       {tileIds.map((tileId) => (
         <button
           key={tileId}
-          onClick={() => show({ tileId })}
+          onClick={() => onClick(tileId)}
           style={{ margin: 0 }}
         >
           <Box
