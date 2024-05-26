@@ -35,19 +35,18 @@ export const replaceTileInRuleSet = (
       console.log("Could not find tile while removing a tile from rule set.");
       continue;
     }
-    n.up = addIfNotExists(removeItem(n.up, tileIdToDelete), tileIdToReplaceIt);
-    n.down = addIfNotExists(
-      removeItem(n.down, tileIdToDelete),
-      tileIdToReplaceIt,
-    );
-    n.left = addIfNotExists(
-      removeItem(n.left, tileIdToDelete),
-      tileIdToReplaceIt,
-    );
-    n.right = addIfNotExists(
-      removeItem(n.right, tileIdToDelete),
-      tileIdToReplaceIt,
-    );
+    n.up = n.up.includes(tileIdToDelete)
+      ? addIfNotExists(removeItem(n.up, tileIdToDelete), tileIdToReplaceIt)
+      : n.up;
+    n.down = n.down.includes(tileIdToDelete)
+      ? addIfNotExists(removeItem(n.down, tileIdToDelete), tileIdToReplaceIt)
+      : n.down;
+    n.left = n.left.includes(tileIdToDelete)
+      ? addIfNotExists(removeItem(n.left, tileIdToDelete), tileIdToReplaceIt)
+      : n.left;
+    n.right = n.right.includes(tileIdToDelete)
+      ? addIfNotExists(removeItem(n.right, tileIdToDelete), tileIdToReplaceIt)
+      : n.right;
   }
 };
 

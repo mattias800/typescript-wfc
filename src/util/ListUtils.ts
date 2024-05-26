@@ -18,13 +18,8 @@ export const getRandomItem = <T>(list: Array<T>): T => {
   return list[randomIndex];
 };
 
-export const removeItem = <T>(list: Array<T>, item: T): Array<T> => {
-  return list.filter((l) => l !== item);
-};
+export const removeItem = <T>(list: Array<T>, item: T): Array<T> =>
+  list.filter((l) => l !== item);
 
-export const addIfNotExists = <T>(list: Array<T>, item: T): Array<T> => {
-  if (list.includes(item)) {
-    return list;
-  }
-  return [...list, item];
-};
+export const addIfNotExists = <T>(list: Array<T>, item: T): Array<T> =>
+  list.includes(item) ? list : [...list, item];
