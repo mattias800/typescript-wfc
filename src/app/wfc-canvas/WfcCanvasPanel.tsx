@@ -12,13 +12,11 @@ import { tileAtlasStateToImageElements } from "../util/ImageDataUtil.ts";
 import { RootState, useAppDispatch, useAppSelector } from "../../Store.ts";
 import { CancellationToken } from "../util/CancellationToken.ts";
 import { useModalDialog } from "@stenajs-webui/modal";
-import { RuleDetailsModal } from "../wfc-rule-details/RuleDetailsModal.tsx";
 import { processRollbackAndRenderAsync } from "./AsyncWfcRollbackProcessor.ts";
 import { wfcSlice } from "../wfc-ruleset/WfcSlice.ts";
 import { renderWfcData } from "../util/TileMapRenderer.ts";
 import { ErrorPanel } from "./ErrorPanel.tsx";
 import { SwitchWithLabel } from "@stenajs-webui/forms";
-import { getWfcTile } from "../../wfc/WfcTileFactory.ts";
 import { WfcSettingsForm } from "./WfcSettingsForm.tsx";
 import {
   TileSelectModal,
@@ -51,8 +49,6 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
   const [backtrackingEnabled, setBacktrackingEnabled] = useState(true);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const [ruleDetailsDialog, { show: showRuleDetails }] =
-    useModalDialog(RuleDetailsModal);
   const [tileSelectDialog, { show: showTileSelect }] = useModalDialog<
     TileSelectModalProps,
     TileSelectModalResult
@@ -110,40 +106,31 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
     const row = Math.floor(y / tileHeight);
 
     if (wfcData) {
-      const tileId = getWfcTile(wfcData, row, col).collapsed;
-      if (tileId) {
-        try {
-          await showRuleDetails({ tileId });
-        } catch (e) {
-          /* empty */
-        }
-      } else {
-        try {
-          const result = await showTileSelect({
-            coordinate: { row: row, col: col },
-          });
-          await asyncDelay(100);
-          if (result) {
+      try {
+        const result = await showTileSelect({
+          coordinate: { row: row, col: col },
+        });
+        await asyncDelay(100);
+        if (result) {
+          dispatch(
+            wfcSlice.actions.setWfcTile({
+              row,
+              col,
+              tileId: result.selectedTileId,
+            }),
+          );
+          if (result.selectedTileIsNotAllowed && ruleSet) {
             dispatch(
-              wfcSlice.actions.setWfcTile({
-                row,
+              wfcSlice.actions.addTileToAllowedInItsNeighbours({
                 col,
+                row,
                 tileId: result.selectedTileId,
               }),
             );
-            if (result.selectedTileIsNotAllowed && ruleSet) {
-              dispatch(
-                wfcSlice.actions.addTileToAllowedInItsNeighbours({
-                  col,
-                  row,
-                  tileId: result.selectedTileId,
-                }),
-              );
-            }
           }
-        } catch (e) {
-          /* empty */
         }
+      } catch (e) {
+        /* empty */
       }
     }
   };
@@ -216,7 +203,6 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
 
   return (
     <Column gap={2}>
-      {ruleDetailsDialog}
       {tileSelectDialog}
       <Row alignItems={"center"} gap={2} justifyContent={"space-between"}>
         <Row alignItems={"center"} gap={2} minHeight={"40px"}>

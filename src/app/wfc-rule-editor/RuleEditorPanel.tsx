@@ -25,7 +25,7 @@ export const RuleEditorPanel: React.FC<RuleEditorPanelProps> = ({
   const tileIds = Object.keys(ruleSet) as Array<TileId>;
 
   return (
-    <Row flexWrap={"wrap"} gap={4}>
+    <Row flexWrap={"wrap"} gap={4} width={"700px"}>
       {tileIds.map((otherTileId) => (
         <UpDownNeighbourCombinationSwitch
           key={otherTileId}

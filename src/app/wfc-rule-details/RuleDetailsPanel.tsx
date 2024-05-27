@@ -1,8 +1,9 @@
 import * as React from "react";
 import { useAppSelector } from "../../Store.ts";
-import { Row } from "@stenajs-webui/core";
+import { Column, Row } from "@stenajs-webui/core";
 import { HorizontalNeighbourList } from "./HorizontalNeighbourList.tsx";
 import { VerticalNeighbourList } from "./VerticalNeighbourList.tsx";
+import { RuleDetailsHeader } from "./RuleDetailsHeader.tsx";
 
 export interface RuleDetailsPanelProps {
   tileId: string;
@@ -15,7 +16,8 @@ export const RuleDetailsPanel: React.FC<RuleDetailsPanelProps> = ({
   const allowedNeighbours = ruleSet?.[tileId];
 
   return (
-    <>
+    <Column gap={4}>
+      <RuleDetailsHeader tileId={tileId} />
       {allowedNeighbours && (
         <Row gap={4}>
           <HorizontalNeighbourList
@@ -28,6 +30,6 @@ export const RuleDetailsPanel: React.FC<RuleDetailsPanelProps> = ({
           />
         </Row>
       )}
-    </>
+    </Column>
   );
 };
