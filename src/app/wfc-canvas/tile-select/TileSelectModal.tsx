@@ -29,9 +29,10 @@ export const TileSelectModal: React.FC<TileSelectModalProps> = ({
 
   const wfcData = useAppSelector(getWfcData);
 
-  const tileId = wfcData
-    ? getWfcTile(wfcData, coordinate.row, coordinate.col).collapsed
-    : undefined;
+  const tileId =
+    wfcData && coordinate.row < wfcData.rows && coordinate.col < wfcData.cols
+      ? getWfcTile(wfcData, coordinate.row, coordinate.col)?.collapsed
+      : undefined;
 
   return (
     <ModalBody>

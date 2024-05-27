@@ -95,7 +95,7 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
 
   const onClickCanvas: MouseEventHandler<HTMLCanvasElement> = async (ev) => {
     const canvas = canvasRef.current;
-    if (!canvas) {
+    if (!canvas || loading) {
       return;
     }
     const canvasScale = 2;
@@ -105,7 +105,7 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
     const col = Math.floor(x / tileWidth);
     const row = Math.floor(y / tileHeight);
 
-    if (wfcData) {
+    if (wfcData && row < wfcData.rows && col < wfcData.cols) {
       try {
         const result = await showTileSelect({
           coordinate: { row: row, col: col },
@@ -237,7 +237,9 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
       <Row alignItems={"center"} gap={4}>
         <WfcSettingsForm />
         {mouseTileCoordinate && (
-          <Text>
+          <Text
+            color={loading ? cssColor("--swui-text-disabled-color") : undefined}
+          >
             {mouseTileCoordinate.mouseTileX}:{mouseTileCoordinate.mouseTileY}{" "}
             {mouseTileCoordinate.mouseTileIndex}
           </Text>
@@ -251,6 +253,7 @@ export const WfcCanvasPanel: React.FC<WfcCanvasPanelProps> = () => {
         onMouseMove={onMouseOverCanvas}
         onMouseOut={() => setMouseTileCoordinate(undefined)}
         style={{
+          cursor: !loading ? "pointer" : undefined,
           border: "1px solid " + cssColor("--silver"),
           width: "1920px",
           height: "1024px",
