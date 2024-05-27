@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Row, Text } from "@stenajs-webui/core";
 import { TileAtlasImage } from "../common/components/TileAtlasImage.tsx";
-import { SecondaryButton } from "@stenajs-webui/elements";
+import { Cardy, CardyBody, SecondaryButton } from "@stenajs-webui/elements";
 import { TileId } from "../../wfc/CommonTypes.ts";
 import { wfcSlice } from "../wfc-ruleset/WfcSlice.ts";
 import { useAppDispatch } from "../../Store.ts";
@@ -52,16 +52,20 @@ export const RuleDetailsHeader: React.FC<RuleDetailsHeaderProps> = ({
         <TileAtlasImage tileId={tileId} />
         <Text>ID: {tileId}</Text>
       </Row>
-      <Row alignItems={"center"} gap={2}>
-        <SecondaryButton
-          label={"Delete & replace"}
-          onClick={() => onClickReplace(tileId)}
-        />
-        <SecondaryButton
-          label={"Delete"}
-          onClick={() => onClickDelete(tileId)}
-        />
-      </Row>
+      <Cardy>
+        <CardyBody>
+          <Row alignItems={"center"} gap={2}>
+            <SecondaryButton
+              label={"Delete & replace"}
+              onClick={() => onClickReplace(tileId)}
+            />
+            <SecondaryButton
+              label={"Delete"}
+              onClick={() => onClickDelete(tileId)}
+            />
+          </Row>
+        </CardyBody>
+      </Cardy>
     </Row>
   );
 };

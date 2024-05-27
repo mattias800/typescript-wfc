@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useAppSelector } from "../../Store.ts";
-import { Column, Row } from "@stenajs-webui/core";
+import { Column, Heading, Row } from "@stenajs-webui/core";
 import { HorizontalNeighbourList } from "./HorizontalNeighbourList.tsx";
 import { VerticalNeighbourList } from "./VerticalNeighbourList.tsx";
 import { RuleDetailsHeader } from "./RuleDetailsHeader.tsx";
@@ -18,6 +18,7 @@ export const RuleDetailsPanel: React.FC<RuleDetailsPanelProps> = ({
   return (
     <Column gap={4}>
       <RuleDetailsHeader tileId={tileId} />
+      <Heading variant={"h4"}>Allowed neighbours</Heading>
       {allowedNeighbours && (
         <Row gap={4}>
           <HorizontalNeighbourList

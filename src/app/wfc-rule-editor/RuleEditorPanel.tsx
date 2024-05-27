@@ -3,7 +3,7 @@ import { AllowedNeighbours, TileId } from "../../wfc/CommonTypes.ts";
 import { Row } from "@stenajs-webui/core";
 import { RootState, useAppSelector } from "../../Store.ts";
 import { UpDownNeighbourCombinationSwitch } from "./UpDownNeighbourCombinationSwitch.tsx";
-import { Banner } from "@stenajs-webui/elements";
+import { Banner, Cardy, CardyBody } from "@stenajs-webui/elements";
 
 export interface RuleEditorPanelProps {
   tileId: TileId;
@@ -25,16 +25,20 @@ export const RuleEditorPanel: React.FC<RuleEditorPanelProps> = ({
   const tileIds = Object.keys(ruleSet) as Array<TileId>;
 
   return (
-    <Row flexWrap={"wrap"} gap={4} width={"700px"}>
-      {tileIds.map((otherTileId) => (
-        <UpDownNeighbourCombinationSwitch
-          key={otherTileId}
-          tileId={tileId}
-          neighbourId={otherTileId}
-          direction={direction}
-          row={direction === "left"}
-        />
-      ))}
-    </Row>
+    <Cardy>
+      <CardyBody>
+        <Row flexWrap={"wrap"} gap={4} width={"700px"}>
+          {tileIds.map((otherTileId) => (
+            <UpDownNeighbourCombinationSwitch
+              key={otherTileId}
+              tileId={tileId}
+              neighbourId={otherTileId}
+              direction={direction}
+              row={direction === "left"}
+            />
+          ))}
+        </Row>
+      </CardyBody>
+    </Cardy>
   );
 };
